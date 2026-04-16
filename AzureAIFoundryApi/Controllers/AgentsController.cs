@@ -1,3 +1,4 @@
+using System.ClientModel;
 using Azure.AI.Projects;
 using Azure.AI.Projects.Agents;
 using AzureAIFoundryApi.Models;
@@ -59,16 +60,23 @@ public class AgentsController : ControllerBase
     [HttpGet("{agentName}")]
     public async Task<IActionResult> GetAgent(string agentName)
     {
-        var client = _clientFactory.GetClient();
-        var agentAdmin = client.AgentAdministrationClient;
-
-        var result = await agentAdmin.GetAgentAsync(agentName);
-        var agent = result.Value;
-        return Ok(new AgentResponse
+        try
         {
-            Id = agent.Id,
-            Name = agent.Name
-        });
+            var client = _clientFactory.GetClient();
+            var agentAdmin = client.AgentAdministrationClient;
+
+            var result = await agentAdmin.GetAgentAsync(agentName);
+            var agent = result.Value;
+            return Ok(new AgentResponse
+            {
+                Id = agent.Id,
+                Name = agent.Name
+            });
+        }
+        catch (ClientResultException ex) when (ex.Status == 404)
+        {
+            return NotFound(new { error = $"Agent not found." });
+        }
     }
 
     /// <summary>
@@ -100,17 +108,24 @@ public class AgentsController : ControllerBase
     [HttpGet("{agentName}/versions/{agentVersion}")]
     public async Task<IActionResult> GetAgentVersion(string agentName, string agentVersion)
     {
-        var client = _clientFactory.GetClient();
-        var agentAdmin = client.AgentAdministrationClient;
-
-        var result = await agentAdmin.GetAgentVersionAsync(agentName, agentVersion);
-        var version = result.Value;
-        return Ok(new AgentVersionResponse
+        try
         {
-            Id = version.Id,
-            Name = version.Name,
-            Version = version.Version
-        });
+            var client = _clientFactory.GetClient();
+            var agentAdmin = client.AgentAdministrationClient;
+
+            var result = await agentAdmin.GetAgentVersionAsync(agentName, agentVersion);
+            var version = result.Value;
+            return Ok(new AgentVersionResponse
+            {
+                Id = version.Id,
+                Name = version.Name,
+                Version = version.Version
+            });
+        }
+        catch (ClientResultException ex) when (ex.Status == 404)
+        {
+            return NotFound(new { error = $"Agent version not found." });
+        }
     }
 
     /// <summary>
@@ -138,10 +153,7 @@ public class AgentsController : ControllerBase
             options: options);
         var agentVersion = result.Value;
 
-        _logger.LogInformation(
-            "Created prompt agent '{AgentName}' version '{Version}'",
-            agentVersion.Name,
-            agentVersion.Version);
+        _logger.LogInformation("Created prompt agent version successfully");
 
         return CreatedAtAction(
             nameof(GetAgentVersion),
@@ -164,11 +176,12 @@ public class AgentsController : ControllerBase
         var client = _clientFactory.GetClient();
         var agentAdmin = client.AgentAdministrationClient;
 
-        var versions = request.ProtocolVersions
-            .Select(pv => new ProtocolVersionRecord(
-                Enum.Parse<ProjectsAgentProtocol>(pv.Protocol, ignoreCase: true),
-                pv.Version))
-            .ToList();
+        var versions = new List<ProtocolVersionRecord>();
+        foreach (var pv in request.ProtocolVersions)
+        {
+            var protocol = new ProjectsAgentProtocol(pv.Protocol);
+            versions.Add(new ProtocolVersionRecord(protocol, pv.Version));
+        }
 
         var definition = new HostedAgentDefinition(
             versions: versions,
@@ -196,10 +209,7 @@ public class AgentsController : ControllerBase
             options: options);
         var agentVersion = result.Value;
 
-        _logger.LogInformation(
-            "Created hosted agent '{AgentName}' version '{Version}'",
-            agentVersion.Name,
-            agentVersion.Version);
+        _logger.LogInformation("Created hosted agent version successfully");
 
         return CreatedAtAction(
             nameof(GetAgentVersion),
@@ -223,7 +233,7 @@ public class AgentsController : ControllerBase
 
         await agentAdmin.DeleteAgentVersionAsync(agentName, agentVersion);
 
-        _logger.LogInformation("Deleted agent '{AgentName}' version '{Version}'", agentName, agentVersion);
+        _logger.LogInformation("Deleted agent version successfully");
         return NoContent();
     }
 
@@ -238,7 +248,7 @@ public class AgentsController : ControllerBase
 
         await agentAdmin.DeleteAgentAsync(agentName);
 
-        _logger.LogInformation("Deleted agent '{AgentName}'", agentName);
+        _logger.LogInformation("Deleted agent successfully");
         return NoContent();
     }
 }

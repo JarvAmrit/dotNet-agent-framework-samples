@@ -14,7 +14,7 @@ public class CreateAgentRequest
     public required string AgentName { get; set; }
 
     /// <summary>
-    /// The model deployment name to use for this agent (e.g., "gpt-4o", "gpt-4.1").
+    /// The model deployment name to use for this agent (e.g., "gpt-4o", "gpt-4o-mini").
     /// </summary>
     [Required]
     public required string Model { get; set; }

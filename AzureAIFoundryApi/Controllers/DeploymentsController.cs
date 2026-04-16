@@ -1,3 +1,4 @@
+using System.ClientModel;
 using Azure.AI.Projects;
 using AzureAIFoundryApi.Models;
 using AzureAIFoundryApi.Services;
@@ -61,11 +62,18 @@ public class DeploymentsController : ControllerBase
     [HttpGet("{deploymentName}")]
     public IActionResult GetDeployment(string deploymentName)
     {
-        var client = _clientFactory.GetClient();
-        var deploymentsClient = client.Deployments;
+        try
+        {
+            var client = _clientFactory.GetClient();
+            var deploymentsClient = client.Deployments;
 
-        var result = deploymentsClient.GetDeployment(deploymentName);
-        return Ok(MapToResponse(result.Value));
+            var result = deploymentsClient.GetDeployment(deploymentName);
+            return Ok(MapToResponse(result.Value));
+        }
+        catch (ClientResultException ex) when (ex.Status == 404)
+        {
+            return NotFound(new { error = $"Deployment not found." });
+        }
     }
 
     private static DeploymentResponse MapToResponse(AIProjectDeployment deployment)
