@@ -6,7 +6,7 @@ A .NET 10 Web API for creating and managing agents and model deployments in [Mic
 
 - **Agent Management** – Create, list, retrieve, and delete prompt agents and hosted agents in Azure AI Foundry
 - **Model Deployment Management** – List and retrieve model deployments available in your Foundry project
-- **Flexible Authentication** – Supports `DefaultAzureCredential` (for local dev / managed identity) and `ClientSecretCredential` (for service principal-based auth in higher environments)
+- **Flexible Authentication** – Supports `DefaultAzureCredential` (for local dev / managed identity), `ClientSecretCredential` (for service principal secret-based auth), and `ClientCertificateCredential` (for service principal certificate-based auth)
 - **Customizable Project Endpoint** – Configure the Foundry project endpoint via `appsettings.json` or environment variables
 
 ---
@@ -35,7 +35,10 @@ Edit `AzureAIFoundryApi/appsettings.json`:
   "ServicePrincipal": {
     "TenantId": "",
     "ClientId": "",
-    "ClientSecret": ""
+    "ClientSecret": "",
+    "CertificateThumbprint": "",
+    "CertificateFilePath": "",
+    "CertificatePassword": ""
   }
 }
 ```
@@ -48,10 +51,21 @@ Override configuration at runtime using environment variables (useful for CI/CD 
 export AzureFoundry__ProjectEndpoint="https://your-project.services.ai.azure.com"
 export AzureFoundry__DefaultModelDeploymentName="gpt-4o"
 
-# For Service Principal auth (higher environments):
+# For Service Principal auth with client secret:
 export ServicePrincipal__TenantId="<your-tenant-id>"
 export ServicePrincipal__ClientId="<your-client-id>"
 export ServicePrincipal__ClientSecret="<your-client-secret>"
+
+# For Service Principal auth with a certificate (thumbprint from cert store):
+export ServicePrincipal__TenantId="<your-tenant-id>"
+export ServicePrincipal__ClientId="<your-client-id>"
+export ServicePrincipal__CertificateThumbprint="<your-certificate-thumbprint>"
+
+# For Service Principal auth with a certificate (PFX file):
+export ServicePrincipal__TenantId="<your-tenant-id>"
+export ServicePrincipal__ClientId="<your-client-id>"
+export ServicePrincipal__CertificateFilePath="/path/to/cert.pfx"
+export ServicePrincipal__CertificatePassword="<optional-pfx-password>"
 ```
 
 ### Authentication
@@ -59,7 +73,12 @@ export ServicePrincipal__ClientSecret="<your-client-secret>"
 | Scenario | Credential Used | Configuration |
 |---|---|---|
 | **Local Development** | `DefaultAzureCredential` (uses `az login`, VS, etc.) | Leave `ServicePrincipal` fields empty |
-| **Higher Environments** | `ClientSecretCredential` (Service Principal) | Populate `ServicePrincipal` section with Tenant ID, Client ID, and Client Secret |
+| **Client Secret** | `ClientSecretCredential` (Service Principal) | Populate `TenantId`, `ClientId`, and `ClientSecret` |
+| **Certificate (store)** | `ClientCertificateCredential` (Service Principal) | Populate `TenantId`, `ClientId`, and `CertificateThumbprint` |
+| **Certificate (file)** | `ClientCertificateCredential` (Service Principal) | Populate `TenantId`, `ClientId`, `CertificateFilePath`, and optionally `CertificatePassword` |
+
+Certificate authentication takes priority over client secret when both are configured.
+The thumbprint lookup searches `CurrentUser\My` first, then `LocalMachine\My`.
 
 The Service Principal must have the appropriate permissions in Microsoft Entra ID and be assigned the necessary roles on the Azure AI Foundry resource (e.g., `Azure AI Developer` or `Contributor`).
 
@@ -179,7 +198,7 @@ curl "https://localhost:5001/api/deployments?modelPublisher=OpenAI"
 AzureAIFoundryApi/
 ├── Configuration/
 │   ├── AzureFoundrySettings.cs       # Foundry project endpoint config
-│   └── ServicePrincipalSettings.cs   # Service Principal auth config
+│   └── ServicePrincipalSettings.cs   # Service Principal auth config (secret & certificate)
 ├── Controllers/
 │   ├── AgentsController.cs           # Agent CRUD endpoints
 │   └── DeploymentsController.cs      # Model deployment endpoints
@@ -188,7 +207,7 @@ AzureAIFoundryApi/
 │   └── DeploymentModels.cs           # Response models for deployments
 ├── Services/
 │   ├── AIProjectClientFactory.cs     # Factory for AIProjectClient
-│   └── CredentialFactory.cs          # TokenCredential factory (Default / SP)
+│   └── CredentialFactory.cs          # TokenCredential factory (Default / Secret / Certificate)
 ├── Program.cs                        # App startup and DI configuration
 ├── appsettings.json                  # Configuration file
 └── AzureAIFoundryApi.csproj          # Project file (.NET 10)
@@ -201,7 +220,7 @@ AzureAIFoundryApi/
 | Package | Version | Purpose |
 |---|---|---|
 | [Azure.AI.Projects](https://www.nuget.org/packages/Azure.AI.Projects/) | 2.0.0 | Azure AI Foundry SDK – agents, deployments, connections |
-| [Azure.Identity](https://www.nuget.org/packages/Azure.Identity/) | 1.21.0 | Azure authentication (DefaultAzureCredential, ClientSecretCredential) |
+| [Azure.Identity](https://www.nuget.org/packages/Azure.Identity/) | 1.21.0 | Azure authentication (DefaultAzureCredential, ClientSecretCredential, ClientCertificateCredential) |
 
 ---
 
