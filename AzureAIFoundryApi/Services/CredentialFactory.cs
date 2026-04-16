@@ -28,10 +28,7 @@ public class CredentialFactory
     {
         if (_spSettings.IsConfigured)
         {
-            _logger.LogInformation(
-                "Using Service Principal authentication (TenantId: {TenantId}, ClientId: {ClientId})",
-                _spSettings.TenantId,
-                _spSettings.ClientId);
+            _logger.LogInformation("Using Service Principal authentication");
 
             return new ClientSecretCredential(
                 _spSettings.TenantId,
