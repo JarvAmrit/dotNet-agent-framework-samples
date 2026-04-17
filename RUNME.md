@@ -1,11 +1,15 @@
 # Azure AI Foundry Agent Management API
 
-A .NET 10 Web API for creating and managing agents and model deployments in [Microsoft Azure AI Foundry](https://ai.azure.com). Built using the official [Azure.AI.Projects](https://www.nuget.org/packages/Azure.AI.Projects/) SDK (v2.0.0).
+A .NET 10 Web API for creating and managing agents, model deployments, connections, indexes, datasets, and telemetry in [Microsoft Azure AI Foundry](https://ai.azure.com). Built using the official [Azure.AI.Projects](https://www.nuget.org/packages/Azure.AI.Projects/) SDK (v2.0.0).
 
 ## Features
 
 - **Agent Management** – Create, list, retrieve, and delete prompt agents and hosted agents in Azure AI Foundry
 - **Model Deployment Management** – List and retrieve model deployments available in your Foundry project
+- **Connection Management** – List and retrieve connections (Azure OpenAI, Azure AI Search, Blob Storage, etc.) with optional credential retrieval
+- **Index Management** – List, get, create, and delete vector search index versions (Azure AI Search, Managed Azure AI Search, Cosmos DB)
+- **Dataset Management** – List, get, create, and delete dataset versions (file and folder datasets backed by Azure Blob Storage)
+- **Telemetry** – Retrieve the Application Insights connection string for distributed tracing
 - **Flexible Authentication** – Supports `DefaultAzureCredential` (for local dev / managed identity), `ClientSecretCredential` (for service principal secret-based auth), and `ClientCertificateCredential` (for service principal certificate-based auth)
 - **Customizable Project Endpoint** – Configure the Foundry project endpoint via `appsettings.json` or environment variables
 
@@ -190,6 +194,126 @@ curl https://localhost:5001/api/deployments
 curl "https://localhost:5001/api/deployments?modelPublisher=OpenAI"
 ```
 
+### Connections
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/connections` | List all connections (optional `?type=...&defaultOnly=true`) |
+| `GET` | `/api/connections/default` | Get the default connection (optional `?type=...&includeCredentials=true`) |
+| `GET` | `/api/connections/{connectionName}` | Get a specific connection (optional `?includeCredentials=true`) |
+
+Supported `type` values: `AzureOpenAI`, `AzureAISearch`, `AzureBlobStorage`, `AzureStorageAccount`, `CosmosDB`, `APIKey`, `ApplicationInsights`, `Custom`, `RemoteTool`.
+
+#### Example: List All Connections
+
+```bash
+curl https://localhost:5001/api/connections
+```
+
+#### Example: Get the Default Azure OpenAI Connection with Credentials
+
+```bash
+curl "https://localhost:5001/api/connections/default?type=AzureOpenAI&includeCredentials=true"
+```
+
+#### Example: Get a Named Connection
+
+```bash
+curl "https://localhost:5001/api/connections/my-openai-connection?includeCredentials=true"
+```
+
+### Indexes
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/indexes` | List all indexes |
+| `GET` | `/api/indexes/{indexName}/versions` | List all versions of an index |
+| `GET` | `/api/indexes/{indexName}/versions/{indexVersion}` | Get a specific index version |
+| `PUT` | `/api/indexes/{indexName}/versions/{indexVersion}/azure-search` | Create or update an Azure AI Search index version |
+| `PUT` | `/api/indexes/{indexName}/versions/{indexVersion}/managed` | Create or update a Managed Azure AI Search index version |
+| `DELETE` | `/api/indexes/{indexName}/versions/{indexVersion}` | Delete a specific index version |
+
+#### Example: Create an Azure AI Search Index
+
+```bash
+curl -X PUT https://localhost:5001/api/indexes/my-index/versions/1/azure-search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "connectionName": "my-search-connection",
+    "indexName": "my-azure-search-index",
+    "description": "Product catalog search index"
+  }'
+```
+
+#### Example: Create a Managed Azure AI Search Index
+
+```bash
+curl -X PUT https://localhost:5001/api/indexes/my-managed-index/versions/1/managed \
+  -H "Content-Type: application/json" \
+  -d '{
+    "vectorStoreId": "vs_abc123",
+    "description": "Managed vector store index"
+  }'
+```
+
+### Datasets
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/datasets` | List all datasets |
+| `GET` | `/api/datasets/{datasetName}/versions` | List all versions of a dataset |
+| `GET` | `/api/datasets/{datasetName}/versions/{datasetVersion}` | Get a specific dataset version |
+| `PUT` | `/api/datasets/{datasetName}/versions/{datasetVersion}/file` | Create or update a file dataset version |
+| `PUT` | `/api/datasets/{datasetName}/versions/{datasetVersion}/folder` | Create or update a folder dataset version |
+| `DELETE` | `/api/datasets/{datasetName}/versions/{datasetVersion}` | Delete a specific dataset version |
+
+#### Example: Create a File Dataset
+
+```bash
+curl -X PUT https://localhost:5001/api/datasets/my-dataset/versions/1/file \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dataUri": "https://mystorageaccount.blob.core.windows.net/mycontainer/data.jsonl",
+    "connectionName": "my-storage-connection",
+    "description": "Training dataset for fine-tuning"
+  }'
+```
+
+#### Example: Create a Folder Dataset
+
+```bash
+curl -X PUT https://localhost:5001/api/datasets/my-dataset/versions/1/folder \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dataUri": "https://mystorageaccount.blob.core.windows.net/mycontainer/data/",
+    "connectionName": "my-storage-connection",
+    "description": "Folder of evaluation files"
+  }'
+```
+
+### Telemetry
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/telemetry/app-insights` | Get the Application Insights connection string |
+
+#### Example: Get Application Insights Connection String
+
+```bash
+curl https://localhost:5001/api/telemetry/app-insights
+```
+
+Use the returned connection string to configure your OpenTelemetry SDK:
+
+```csharp
+using Azure.Monitor.OpenTelemetry.Exporter;
+
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing => tracing
+        .AddAzureMonitorTraceExporter(options =>
+            options.ConnectionString = "<connection-string-from-api>"));
+```
+
 ---
 
 ## Project Structure
@@ -201,10 +325,18 @@ AzureAIFoundryApi/
 │   └── ServicePrincipalSettings.cs   # Service Principal auth config (secret & certificate)
 ├── Controllers/
 │   ├── AgentsController.cs           # Agent CRUD endpoints
-│   └── DeploymentsController.cs      # Model deployment endpoints
+│   ├── ConnectionsController.cs      # Connection list/get endpoints
+│   ├── DatasetsController.cs         # Dataset CRUD endpoints
+│   ├── DeploymentsController.cs      # Model deployment endpoints
+│   ├── IndexesController.cs          # Index CRUD endpoints
+│   └── TelemetryController.cs        # Application Insights telemetry endpoint
 ├── Models/
 │   ├── AgentModels.cs                # Request/response models for agents
-│   └── DeploymentModels.cs           # Response models for deployments
+│   ├── ConnectionModels.cs           # Response models for connections
+│   ├── DatasetModels.cs              # Request/response models for datasets
+│   ├── DeploymentModels.cs           # Response models for deployments
+│   ├── IndexModels.cs                # Request/response models for indexes
+│   └── TelemetryModels.cs            # Response models for telemetry
 ├── Services/
 │   ├── AIProjectClientFactory.cs     # Factory for AIProjectClient
 │   └── CredentialFactory.cs          # TokenCredential factory (Default / Secret / Certificate)
@@ -219,7 +351,7 @@ AzureAIFoundryApi/
 
 | Package | Version | Purpose |
 |---|---|---|
-| [Azure.AI.Projects](https://www.nuget.org/packages/Azure.AI.Projects/) | 2.0.0 | Azure AI Foundry SDK – agents, deployments, connections |
+| [Azure.AI.Projects](https://www.nuget.org/packages/Azure.AI.Projects/) | 2.0.0 | Azure AI Foundry SDK – agents, deployments, connections, indexes, datasets, telemetry |
 | [Azure.Identity](https://www.nuget.org/packages/Azure.Identity/) | 1.21.0 | Azure authentication (DefaultAzureCredential, ClientSecretCredential, ClientCertificateCredential) |
 
 ---
@@ -228,4 +360,5 @@ AzureAIFoundryApi/
 
 - **Hosted Agents** use the `HostedAgentDefinition` which is currently marked as experimental in the SDK (`AAIP001`). This diagnostic is suppressed in the project file.
 - The SDK currently supports **reading** model deployments (list/get). Creating new model deployments via the data-plane SDK is not yet supported—model deployment creation is managed through the Azure Portal, Azure CLI, or the Azure Resource Manager (ARM) APIs.
+- **Dataset creation** uses the protocol-layer `CreateOrUpdate` with `BinaryContent` serialization, as no strongly-typed convenience overload is available in the current SDK version.
 - This project uses the v1 GA data-plane REST APIs of Azure AI Foundry via the `Azure.AI.Projects` SDK.
