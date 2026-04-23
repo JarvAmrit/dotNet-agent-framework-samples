@@ -1,0 +1,6 @@
+{
+  "_comment": "POST /api/agents/{agentName}/invoke — Continue an existing conversation by supplying threadId",
+  "message": "Now can you show me how to solve 3x - 7 = 14 the same way?",
+  "threadId": "thread_abc123xyz",
+  "timeoutSeconds": 120
+}

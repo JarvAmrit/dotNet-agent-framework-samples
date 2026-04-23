@@ -1,0 +1,13 @@
+{
+  "_comment": "GET /api/health — No request body. Sample response shape shown below.",
+  "status": "Healthy",
+  "timestamp": "2026-04-23T10:00:00Z",
+  "subsystems": {
+    "agents": { "status": "Healthy", "latencyMs": 45 },
+    "connections": { "status": "Healthy", "latencyMs": 38 },
+    "deployments": { "status": "Healthy", "latencyMs": 52 },
+    "indexes": { "status": "Healthy", "latencyMs": 41 },
+    "datasets": { "status": "Healthy", "latencyMs": 39 },
+    "telemetry": { "status": "Healthy", "latencyMs": 33 }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "_comment": "POST /api/agent-threads/{threadId}/runs — Start a run with per-run instruction override",
+  "agentName": "math-tutor",
+  "instructions": "For this run, focus only on algebra problems and explain each step in detail."
+}

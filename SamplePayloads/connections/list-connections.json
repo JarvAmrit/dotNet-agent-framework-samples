@@ -1,0 +1,18 @@
+{
+  "_comment": "GET /api/connections?type=AzureOpenAI&defaultOnly=false — No request body. Query params shown below.",
+  "queryParams": {
+    "type": "AzureOpenAI",
+    "defaultOnly": false
+  },
+  "supportedTypes": [
+    "AzureOpenAI",
+    "AzureAISearch",
+    "AzureBlobStorage",
+    "AzureStorageAccount",
+    "CosmosDB",
+    "APIKey",
+    "ApplicationInsights",
+    "Custom",
+    "RemoteTool"
+  ]
+}

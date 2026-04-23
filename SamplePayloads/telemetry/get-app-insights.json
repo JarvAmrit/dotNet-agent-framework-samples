@@ -1,0 +1,6 @@
+{
+  "_comment": "GET /api/telemetry/app-insights — No request body. Sample response shown below.",
+  "sampleResponse": {
+    "connectionString": "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/"
+  }
+}

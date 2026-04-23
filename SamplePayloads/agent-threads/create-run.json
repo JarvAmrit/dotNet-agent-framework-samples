@@ -1,0 +1,5 @@
+{
+  "_comment": "POST /api/agent-threads/{threadId}/runs — Start a run using a named agent. Poll GET /runs/{runId} until Status is Completed/Failed/Cancelled/Expired.",
+  "agentName": "math-tutor",
+  "instructions": null
+}

@@ -1,0 +1,6 @@
+{
+  "_comment": "PUT /api/indexes/{indexName}/versions/{indexVersion}/managed — Create or update a Managed Azure AI Search index",
+  "exampleUrl": "/api/indexes/my-managed-index/versions/1/managed",
+  "vectorStoreId": "vs_abc123def456",
+  "description": "Managed vector store index for RAG scenarios"
+}

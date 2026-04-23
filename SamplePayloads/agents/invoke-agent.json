@@ -1,0 +1,6 @@
+{
+  "_comment": "POST /api/agents/{agentName}/invoke — One-shot agent invocation (creates thread, runs agent, returns response)",
+  "message": "Can you help me solve: 2x + 5 = 13?",
+  "threadId": null,
+  "timeoutSeconds": 120
+}

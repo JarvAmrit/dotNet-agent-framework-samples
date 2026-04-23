@@ -1,0 +1,7 @@
+{
+  "_comment": "PUT /api/datasets/{datasetName}/versions/{datasetVersion}/folder — Create or update a folder dataset",
+  "exampleUrl": "/api/datasets/eval-data/versions/1/folder",
+  "dataUri": "https://mystorageaccount.blob.core.windows.net/mycontainer/eval-files/",
+  "connectionName": "my-storage-connection",
+  "description": "Folder of evaluation JSONL files"
+}

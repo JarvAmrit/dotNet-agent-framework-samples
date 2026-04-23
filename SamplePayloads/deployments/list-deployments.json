@@ -1,0 +1,14 @@
+{
+  "_comment": "GET /api/deployments — No request body. All params are query string filters.",
+  "queryParams": {
+    "modelPublisher": "OpenAI",
+    "modelName": "gpt-4o",
+    "deploymentType": "ModelDeployment"
+  },
+  "exampleUrls": [
+    "/api/deployments",
+    "/api/deployments?modelPublisher=OpenAI",
+    "/api/deployments?modelName=gpt-4o",
+    "/api/deployments?deploymentType=ModelDeployment"
+  ]
+}

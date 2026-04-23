@@ -1,0 +1,13 @@
+{
+  "_comment": "Sample 503 response from GET /api/health when one or more subsystems are unhealthy",
+  "status": "Degraded",
+  "timestamp": "2026-04-23T10:00:00Z",
+  "subsystems": {
+    "agents": { "status": "Healthy", "latencyMs": 45 },
+    "connections": { "status": "Unhealthy", "message": "Connection refused: network unreachable", "latencyMs": 5001 },
+    "deployments": { "status": "Healthy", "latencyMs": 52 },
+    "indexes": { "status": "Healthy", "latencyMs": 41 },
+    "datasets": { "status": "Healthy", "latencyMs": 39 },
+    "telemetry": { "status": "Healthy", "latencyMs": 33 }
+  }
+}

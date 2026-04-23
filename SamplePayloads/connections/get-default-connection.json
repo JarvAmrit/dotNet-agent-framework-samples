@@ -1,0 +1,7 @@
+{
+  "_comment": "GET /api/connections/default?type=AzureOpenAI&includeCredentials=true — No request body.",
+  "queryParams": {
+    "type": "AzureOpenAI",
+    "includeCredentials": true
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "_comment": "PUT /api/datasets/{datasetName}/versions/{datasetVersion}/file — Create or update a file dataset",
+  "exampleUrl": "/api/datasets/training-data/versions/1/file",
+  "dataUri": "https://mystorageaccount.blob.core.windows.net/mycontainer/data.jsonl",
+  "connectionName": "my-storage-connection",
+  "description": "JSONL training dataset for fine-tuning"
+}

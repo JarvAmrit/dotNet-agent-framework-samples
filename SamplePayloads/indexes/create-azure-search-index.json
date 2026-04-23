@@ -1,0 +1,7 @@
+{
+  "_comment": "PUT /api/indexes/{indexName}/versions/{indexVersion}/azure-search — Create or update an Azure AI Search index",
+  "exampleUrl": "/api/indexes/product-catalog/versions/1/azure-search",
+  "connectionName": "my-search-connection",
+  "indexName": "product-catalog-index",
+  "description": "Product catalog search index for semantic search"
+}

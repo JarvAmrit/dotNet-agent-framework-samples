@@ -1,0 +1,4 @@
+{
+  "_comment": "GET /api/deployments/{deploymentName} — No request body. Replace {deploymentName} in URL.",
+  "exampleUrl": "/api/deployments/gpt-4o"
+}

@@ -1,0 +1,5 @@
+{
+  "_comment": "POST /api/agent-threads/{threadId}/messages — Add a user message to an existing thread",
+  "content": "Can you help me understand recursion in programming?",
+  "role": "user"
+}

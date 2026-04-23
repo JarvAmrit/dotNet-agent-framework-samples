@@ -1,0 +1,15 @@
+{
+  "_comment": "POST /api/agents/hosted — Create a new hosted (containerized) agent",
+  "agentName": "my-hosted-agent",
+  "image": "myregistry.azurecr.io/my-agent:latest",
+  "cpu": "1",
+  "memory": "2Gi",
+  "protocolVersions": [
+    { "protocol": "A2A", "version": "0.2.1" }
+  ],
+  "environmentVariables": {
+    "AGENT_MODE": "production",
+    "LOG_LEVEL": "info"
+  },
+  "description": "A custom hosted agent running the A2A protocol"
+}
