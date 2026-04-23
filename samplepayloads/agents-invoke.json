@@ -1,0 +1,17 @@
+{
+  "endpoint": "POST /api/agents/{agentName}/invoke",
+  "description": "Invokes a prompt agent with a user message. The agent runtime creates a thread, runs the agent, and returns the response messages. Use the returned threadId in subsequent calls to continue the conversation.",
+  "pathParams": {
+    "agentName": "my-customer-support-agent"
+  },
+  "payload": {
+    "message": "What is your return policy for electronics?",
+    "threadId": null,
+    "timeoutSeconds": 60
+  },
+  "continueConversationPayload": {
+    "message": "Can I return an item I bought 45 days ago?",
+    "threadId": "thread_abc123xyz",
+    "timeoutSeconds": 60
+  }
+}

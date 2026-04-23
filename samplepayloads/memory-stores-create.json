@@ -1,0 +1,17 @@
+{
+  "endpoint": "POST /api/memory-stores",
+  "description": "Creates a new memory store. The store uses a chat model for reasoning over memories and an embedding model to index them for semantic search.",
+  "payload": {
+    "name": "customer-support-memory",
+    "description": "Stores conversation context and user preferences for the customer support agent",
+    "chatModelDeployment": "gpt-4o",
+    "embeddingModelDeployment": "text-embedding-3-small"
+  },
+  "examples": {
+    "listAll": "GET /api/memory-stores",
+    "getByName": "GET /api/memory-stores/customer-support-memory",
+    "update": "PATCH /api/memory-stores/customer-support-memory",
+    "delete": "DELETE /api/memory-stores/customer-support-memory",
+    "search": "POST /api/memory-stores/customer-support-memory/search"
+  }
+}

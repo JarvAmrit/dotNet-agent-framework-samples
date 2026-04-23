@@ -1,0 +1,14 @@
+{
+  "endpoint": "GET /api/agents/{agentName}/health",
+  "description": "Checks the health of a specific agent by verifying it exists and is reachable in Azure AI Foundry. Returns status 'Healthy' or 'Unhealthy' along with the agent's runtime ID.",
+  "pathParams": {
+    "agentName": "my-customer-support-agent"
+  },
+  "exampleResponse": {
+    "agentName": "my-customer-support-agent",
+    "status": "Healthy",
+    "agentId": "asst_abc123xyz",
+    "error": null,
+    "checkedAt": "2025-04-23T10:00:00Z"
+  }
+}

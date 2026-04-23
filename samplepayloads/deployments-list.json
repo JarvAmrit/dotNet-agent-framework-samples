@@ -1,0 +1,16 @@
+{
+  "endpoint": "GET /api/deployments",
+  "description": "Lists all model deployments available in the Azure AI Foundry project. Supports optional filtering.",
+  "examples": {
+    "listAll": "GET /api/deployments",
+    "filterByPublisher": "GET /api/deployments?modelPublisher=OpenAI",
+    "filterByModel": "GET /api/deployments?modelName=gpt-4o",
+    "filterByType": "GET /api/deployments?deploymentType=ModelDeployment",
+    "getByName": "GET /api/deployments/gpt-4o"
+  },
+  "queryParams": {
+    "modelPublisher": "OpenAI",
+    "modelName": "gpt-4o",
+    "deploymentType": "ModelDeployment"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "endpoint": "POST /api/red-teams",
+  "description": "Creates and starts a red team run that generates adversarial attack prompts against a model deployment, then scores the responses for safety violations across the specified risk categories.",
+  "payload": {
+    "modelDeploymentName": "gpt-4o",
+    "displayName": "Customer Support Agent – Safety Red Team April 2025",
+    "applicationScenario": "Customer-facing support bot for a retail bank. Handles account queries, transaction disputes, and loan information.",
+    "turnCount": 5,
+    "simulationOnly": false,
+    "attackStrategies": [
+      "Jailbreak",
+      "PromptInjection"
+    ],
+    "riskCategories": [
+      "Violence",
+      "SexualContent",
+      "HateSpeech",
+      "SelfHarm"
+    ]
+  },
+  "simulationOnlyPayload": {
+    "modelDeploymentName": "gpt-4o",
+    "displayName": "Preview – Attack Prompt Generation Only",
+    "applicationScenario": "Internal HR chatbot that answers policy questions.",
+    "turnCount": 3,
+    "simulationOnly": true,
+    "attackStrategies": ["Jailbreak"],
+    "riskCategories": ["HateSpeech"]
+  },
+  "examples": {
+    "listAll": "GET /api/red-teams",
+    "getByName": "GET /api/red-teams/my-red-team-run-name"
+  }
+}

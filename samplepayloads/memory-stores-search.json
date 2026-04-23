@@ -1,0 +1,23 @@
+{
+  "endpoint": "POST /api/memory-stores/{name}/search",
+  "description": "Searches a memory store for stored memory items matching the given scope. The scope is typically a user ID, session ID, or topic string used to scope the search.",
+  "pathParams": {
+    "name": "customer-support-memory"
+  },
+  "payload": {
+    "scope": "user-12345",
+    "maxMemories": 5
+  },
+  "exampleResponse": {
+    "items": [
+      {
+        "id": "mem_abc123",
+        "content": "User prefers email communication and has a premium subscription."
+      },
+      {
+        "id": "mem_def456",
+        "content": "User previously reported an issue with order #ORD-78910 that was resolved on 2025-03-15."
+      }
+    ]
+  }
+}

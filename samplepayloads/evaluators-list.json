@@ -1,0 +1,22 @@
+{
+  "endpoint": "GET /api/evaluators",
+  "description": "Lists the latest version of every available evaluator (built-in and custom). Use the evaluator names returned here as the evaluatorName field when creating evaluation rules.",
+  "examples": {
+    "listAll": "GET /api/evaluators",
+    "filterBuiltIn": "GET /api/evaluators?type=BuiltIn",
+    "filterCustom": "GET /api/evaluators?type=Custom",
+    "listVersions": "GET /api/evaluators/coherence/versions",
+    "getVersion": "GET /api/evaluators/coherence/versions/4"
+  },
+  "commonBuiltInEvaluators": [
+    "coherence",
+    "relevance",
+    "groundedness",
+    "fluency",
+    "similarity",
+    "f1-score",
+    "bleu",
+    "rouge",
+    "gleu"
+  ]
+}

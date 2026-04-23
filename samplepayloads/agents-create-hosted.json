@@ -1,0 +1,25 @@
+{
+  "endpoint": "POST /api/agents/hosted",
+  "description": "Creates a new hosted (containerized) agent version. The container must implement the A2A or OpenAI protocol.",
+  "payload": {
+    "agentName": "my-hosted-rag-agent",
+    "image": "myregistry.azurecr.io/rag-agent:1.0.0",
+    "cpu": "1",
+    "memory": "2Gi",
+    "protocolVersions": [
+      {
+        "protocol": "A2A",
+        "version": "0.2.5"
+      },
+      {
+        "protocol": "OpenAI",
+        "version": "1.0.0"
+      }
+    ],
+    "environmentVariables": {
+      "SEARCH_INDEX_NAME": "products-index",
+      "MAX_RESULTS": "5"
+    },
+    "description": "Hosted RAG agent that queries an Azure AI Search index"
+  }
+}

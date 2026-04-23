@@ -1,0 +1,13 @@
+{
+  "endpoint": "PUT /api/indexes/{indexName}/versions/{indexVersion}/azure-search",
+  "description": "Creates or updates an Azure AI Search index version registered in the Foundry project.",
+  "pathParams": {
+    "indexName": "product-catalog-index",
+    "indexVersion": "1"
+  },
+  "payload": {
+    "connectionName": "my-azure-search-connection",
+    "indexName": "product-catalog",
+    "description": "Product catalog search index for semantic retrieval"
+  }
+}

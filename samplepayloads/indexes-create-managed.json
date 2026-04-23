@@ -1,0 +1,12 @@
+{
+  "endpoint": "PUT /api/indexes/{indexName}/versions/{indexVersion}/managed",
+  "description": "Creates or updates a Managed Azure AI Search index version backed by a Foundry-managed vector store.",
+  "pathParams": {
+    "indexName": "faq-managed-index",
+    "indexVersion": "1"
+  },
+  "payload": {
+    "vectorStoreId": "vs_abc123xyz",
+    "description": "FAQ knowledge base stored in a managed vector store"
+  }
+}

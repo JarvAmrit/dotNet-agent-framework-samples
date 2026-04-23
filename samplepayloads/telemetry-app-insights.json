@@ -1,0 +1,8 @@
+{
+  "endpoint": "GET /api/telemetry/app-insights",
+  "description": "Retrieves the Application Insights connection string for the Azure AI Foundry project's linked workspace. Use this value to configure OpenTelemetry or Application Insights SDKs for distributed tracing.",
+  "exampleResponse": {
+    "connectionString": "InstrumentationKey=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/"
+  },
+  "usage": "Set the APPLICATIONINSIGHTS_CONNECTION_STRING environment variable or configure it in your OpenTelemetry setup to forward traces and logs to the Foundry-linked Application Insights workspace."
+}

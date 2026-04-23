@@ -1,0 +1,19 @@
+{
+  "endpoint": "POST /api/evaluations/rules/{id}  →  PUT /api/evaluation-rules/{id}",
+  "description": "Creates and starts a new evaluation run in Azure AI Foundry. Evaluators measure response quality dimensions such as coherence, relevance, groundedness, and fluency. Supply either (agentId + threadId) for agent-based evaluation or (datasetName + datasetVersion) for dataset-based evaluation.",
+  "note": "Use GET /api/evaluators to list available evaluator names and IDs.",
+  "payload": {
+    "displayName": "Customer Support – Coherence Rule",
+    "description": "Automatically evaluates agent responses for coherence after every completed response",
+    "evaluatorName": "coherence",
+    "eventType": "ResponseCompleted",
+    "enabled": true
+  },
+  "manualTriggerPayload": {
+    "displayName": "Monthly Relevance Check",
+    "description": "Manually triggered relevance evaluation for audit purposes",
+    "evaluatorName": "relevance",
+    "eventType": "Manual",
+    "enabled": true
+  }
+}

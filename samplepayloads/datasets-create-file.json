@@ -1,0 +1,13 @@
+{
+  "endpoint": "PUT /api/datasets/{datasetName}/versions/{datasetVersion}/file",
+  "description": "Creates or updates a file (UriFile) dataset version that references a single file in Azure Blob Storage.",
+  "pathParams": {
+    "datasetName": "training-data",
+    "datasetVersion": "1"
+  },
+  "payload": {
+    "dataUri": "https://mystorageaccount.blob.core.windows.net/datasets/training.jsonl",
+    "connectionName": "my-storage-connection",
+    "description": "JSONL training file for fine-tuning, April 2025 version"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "endpoint": "GET /api/connections",
+  "description": "Lists all connections in the Azure AI Foundry project. Use query parameters to filter results.",
+  "queryParams": {
+    "type": "AzureOpenAI",
+    "defaultOnly": false
+  },
+  "supportedConnectionTypes": [
+    "AzureOpenAI",
+    "AzureAISearch",
+    "AzureBlobStorage",
+    "AzureStorageAccount",
+    "CosmosDB",
+    "APIKey",
+    "ApplicationInsights",
+    "Custom",
+    "RemoteTool"
+  ],
+  "examples": {
+    "listAll": "GET /api/connections",
+    "listOpenAIOnly": "GET /api/connections?type=AzureOpenAI",
+    "listDefaultOnly": "GET /api/connections?defaultOnly=true",
+    "getDefault": "GET /api/connections/default?type=AzureOpenAI",
+    "getByName": "GET /api/connections/my-openai-connection",
+    "getWithCredentials": "GET /api/connections/my-openai-connection?includeCredentials=true"
+  }
+}

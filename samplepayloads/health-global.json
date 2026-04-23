@@ -1,0 +1,21 @@
+{
+  "endpoint": "GET /health",
+  "description": "Global health endpoint. Returns the status of all registered health checks, including the Azure AI Foundry connectivity check. Useful for monitoring dashboards and load-balancer health probes.",
+  "additionalEndpoints": {
+    "liveness": "GET /health/live  — Returns 200 if the process is running (no external checks).",
+    "readiness": "GET /health/ready — Returns 200 only if all 'ready'-tagged checks pass (e.g., Foundry connectivity)."
+  },
+  "exampleResponse": {
+    "status": "Healthy",
+    "duration": 142.5,
+    "checks": [
+      {
+        "name": "ai-foundry",
+        "status": "Healthy",
+        "description": "Azure AI Foundry project endpoint is reachable.",
+        "duration": 138.2,
+        "error": null
+      }
+    ]
+  }
+}

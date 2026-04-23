@@ -1,9 +1,10 @@
+#pragma warning disable OPENAI001  // OpenAI Assistants API is currently in experimental status
 using System.ClientModel;
-using Azure.AI.Projects;
 using Azure.AI.Projects.Agents;
 using AzureAIFoundryApi.Models;
 using AzureAIFoundryApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using OpenAI.Assistants;
 
 namespace AzureAIFoundryApi.Controllers;
 
@@ -251,4 +252,176 @@ public class AgentsController : ControllerBase
         _logger.LogInformation("Deleted agent successfully");
         return NoContent();
     }
+
+    /// <summary>
+    /// Invokes an agent with a user message and returns the agent's response.
+    /// Creates a new conversation thread (or reuses an existing one), sends the message,
+    /// runs the agent, polls for completion, and returns the resulting messages.
+    /// This endpoint is primarily intended for prompt (declarative) agents backed by
+    /// the Azure AI Agents runtime.
+    /// </summary>
+    /// <param name="agentName">The name of the agent to invoke.</param>
+    /// <param name="request">The invocation request containing the message and optional thread ID.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    [HttpPost("{agentName}/invoke")]
+    public async Task<IActionResult> InvokeAgent(
+        string agentName,
+        [FromBody] InvokeAgentRequest request,
+        CancellationToken cancellationToken)
+    {
+        var client = _clientFactory.GetClient();
+        var agentAdmin = client.AgentAdministrationClient;
+
+        // Retrieve the agent to verify it exists and obtain its runtime ID.
+        ProjectsAgentRecord agent;
+        try
+        {
+            var agentResult = await agentAdmin.GetAgentAsync(agentName);
+            agent = agentResult.Value;
+        }
+        catch (ClientResultException ex) when (ex.Status == 404)
+        {
+            return NotFound(new { error = $"Agent '{agentName}' not found." });
+        }
+
+        if (string.IsNullOrWhiteSpace(agent.Id))
+            return BadRequest(new { error = "Agent has no runtime ID and cannot be invoked." });
+
+        // AssistantClient provides thread/message/run management via the OpenAI Assistants API.
+        var assistantClient = client.ProjectOpenAIClient.GetAssistantClient();
+        var timeoutSeconds = request.TimeoutSeconds > 0 ? request.TimeoutSeconds : 60;
+
+        // Create a new thread or reuse the provided one.
+        string threadId;
+        if (!string.IsNullOrWhiteSpace(request.ThreadId))
+        {
+            threadId = request.ThreadId;
+        }
+        else
+        {
+            var thread = (await assistantClient.CreateThreadAsync(
+                options: null, cancellationToken: cancellationToken)).Value;
+            threadId = thread.Id;
+        }
+
+        // Add the user message to the thread.
+        await assistantClient.CreateMessageAsync(
+            threadId,
+            MessageRole.User,
+            [MessageContent.FromText(request.Message)],
+            options: null,
+            cancellationToken: cancellationToken);
+
+        // Create a run for the agent on this thread.
+        var run = (await assistantClient.CreateRunAsync(
+            threadId, agent.Id, options: null, cancellationToken: cancellationToken)).Value;
+
+        // Poll until the run reaches a terminal state or the timeout is exceeded.
+        var deadline = DateTime.UtcNow.AddSeconds(timeoutSeconds);
+        while (run.Status == RunStatus.Queued
+            || run.Status == RunStatus.InProgress
+            || run.Status == RunStatus.Cancelling)
+        {
+            if (DateTime.UtcNow >= deadline)
+            {
+                return StatusCode(408, new
+                {
+                    error = $"Agent invocation timed out after {timeoutSeconds} seconds.",
+                    threadId,
+                    runId = run.Id,
+                    status = run.Status.ToString()
+                });
+            }
+
+            await Task.Delay(1000, cancellationToken);
+            run = (await assistantClient.GetRunAsync(
+                threadId, run.Id, cancellationToken: cancellationToken)).Value;
+        }
+
+        _logger.LogInformation(
+            "Agent '{AgentName}' run '{RunId}' finished with status '{Status}'",
+            Sanitize(agentName), Sanitize(run.Id), run.Status);
+
+        // Collect messages only when the run completed successfully.
+        var messages = new List<InvokeMessageResponse>();
+        if (run.Status == RunStatus.Completed)
+        {
+            await foreach (var message in assistantClient.GetMessagesAsync(
+                threadId, options: null, cancellationToken: cancellationToken))
+            {
+                foreach (var content in message.Content)
+                {
+                    if (!string.IsNullOrEmpty(content.Text))
+                    {
+                        messages.Add(new InvokeMessageResponse
+                        {
+                            Id = message.Id,
+                            Role = message.Role.ToString(),
+                            Content = content.Text
+                        });
+                    }
+                }
+            }
+        }
+
+        return Ok(new InvokeAgentResponse
+        {
+            ThreadId = threadId,
+            RunId = run.Id,
+            Status = run.Status.ToString(),
+            Messages = messages
+        });
+    }
+
+    /// <summary>
+    /// Checks the health of a specific agent by verifying it is reachable in Azure AI Foundry.
+    /// Returns "Healthy" if the agent exists and can be retrieved, "Unhealthy" otherwise.
+    /// </summary>
+    /// <param name="agentName">The name of the agent to check.</param>
+    [HttpGet("{agentName}/health")]
+    public async Task<IActionResult> GetAgentHealth(string agentName)
+    {
+        var checkedAt = DateTime.UtcNow;
+        try
+        {
+            var client = _clientFactory.GetClient();
+            var agentAdmin = client.AgentAdministrationClient;
+
+            var result = await agentAdmin.GetAgentAsync(agentName);
+            var agent = result.Value;
+
+            return Ok(new AgentHealthResponse
+            {
+                AgentName = agentName,
+                Status = "Healthy",
+                AgentId = agent.Id,
+                CheckedAt = checkedAt
+            });
+        }
+        catch (ClientResultException ex) when (ex.Status == 404)
+        {
+            return Ok(new AgentHealthResponse
+            {
+                AgentName = agentName,
+                Status = "Unhealthy",
+                Error = "Agent not found in Azure AI Foundry.",
+                CheckedAt = checkedAt
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Health check failed for agent '{AgentName}'", Sanitize(agentName));
+            return Ok(new AgentHealthResponse
+            {
+                AgentName = agentName,
+                Status = "Unhealthy",
+                Error = ex.Message,
+                CheckedAt = checkedAt
+            });
+        }
+    }
+
+    private static string Sanitize(string? value) =>
+        (value ?? string.Empty).Replace("\r", string.Empty, StringComparison.Ordinal)
+                               .Replace("\n", string.Empty, StringComparison.Ordinal);
 }

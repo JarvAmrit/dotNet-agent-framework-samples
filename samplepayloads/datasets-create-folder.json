@@ -1,0 +1,13 @@
+{
+  "endpoint": "PUT /api/datasets/{datasetName}/versions/{datasetVersion}/folder",
+  "description": "Creates or updates a folder (UriFolder) dataset version that references a folder prefix in Azure Blob Storage.",
+  "pathParams": {
+    "datasetName": "image-dataset",
+    "datasetVersion": "2"
+  },
+  "payload": {
+    "dataUri": "https://mystorageaccount.blob.core.windows.net/datasets/images/",
+    "connectionName": "my-storage-connection",
+    "description": "Product image dataset for vision model training"
+  }
+}
