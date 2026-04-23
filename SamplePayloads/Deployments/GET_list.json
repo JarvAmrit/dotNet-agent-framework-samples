@@ -1,0 +1,37 @@
+{
+  "_description": "GET /api/deployments — Lists model deployments in the project. The payload below shows query parameters with example values.",
+  "_curl_all": "curl 'https://localhost:5001/api/deployments'",
+  "_curl_by_publisher": "curl 'https://localhost:5001/api/deployments?modelPublisher=OpenAI'",
+  "_curl_by_model": "curl 'https://localhost:5001/api/deployments?modelName=gpt-4o'",
+  "_curl_specific": "curl 'https://localhost:5001/api/deployments/my-gpt4o-deployment'",
+
+  "_query_parameters": {
+    "modelPublisher": {
+      "description": "Filter by the model publisher.",
+      "example": "OpenAI"
+    },
+    "modelName": {
+      "description": "Filter by the model name.",
+      "example": "gpt-4o"
+    },
+    "deploymentType": {
+      "description": "Filter by deployment type.",
+      "example": "ModelDeployment"
+    }
+  },
+
+  "_example_response": [
+    {
+      "name": "gpt-4o-deployment",
+      "type": "ModelDeployment",
+      "modelId": "gpt-4o",
+      "modelPublisher": "OpenAI"
+    },
+    {
+      "name": "gpt-4o-mini-deployment",
+      "type": "ModelDeployment",
+      "modelId": "gpt-4o-mini",
+      "modelPublisher": "OpenAI"
+    }
+  ]
+}

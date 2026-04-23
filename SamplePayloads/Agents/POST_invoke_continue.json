@@ -1,0 +1,20 @@
+{
+  "_description": "POST /api/agents/{agentName}/invoke — Continues an existing conversation by passing the 'responseId' from a previous response as 'previousResponseId'. Replace {agentName} in the URL.",
+  "_curl": "curl -X POST https://localhost:5001/api/agents/customer-support-agent/invoke -H 'Content-Type: application/json' -d @POST_invoke_continue.json",
+
+  "message": "Sure, the email is john.doe@example.com.",
+  "previousResponseId": "resp_abc123xyz",
+
+  "_notes": [
+    "Replace 'previousResponseId' with the 'responseId' returned from the previous invoke call.",
+    "Each response returns a new 'responseId' — always use the latest one for continuation.",
+    "Conversation context is maintained server-side by the Foundry Responses API."
+  ],
+
+  "_example_response": {
+    "responseId": "resp_def456uvw",
+    "previousResponseId": "resp_abc123xyz",
+    "status": "Completed",
+    "assistantMessage": "Thank you, John! I found your order #12345 associated with john.doe@example.com. It appears there was a delay at the carrier. The new estimated delivery date is tomorrow by 6 PM. Would you like me to send you a tracking link?"
+  }
+}

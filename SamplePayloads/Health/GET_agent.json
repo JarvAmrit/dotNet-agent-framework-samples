@@ -1,0 +1,74 @@
+{
+  "_description": "GET /api/health/agents/{agentName} — Returns the health of a specific agent. Replace {agentName} with the agent name (e.g., customer-support-agent). No request body required.",
+  "_curl": "curl 'https://localhost:5001/api/health/agents/customer-support-agent'",
+
+  "_example_response_healthy": {
+    "status": "Healthy",
+    "timestamp": "2024-06-01T10:00:00+00:00",
+    "agentName": "customer-support-agent",
+    "agentId": "agent_abc123",
+    "checks": [
+      {
+        "name": "AgentCatalogAvailability",
+        "status": "Healthy",
+        "description": "Agent 'customer-support-agent' is registered in the Foundry catalog (id: agent_abc123).",
+        "error": null
+      },
+      {
+        "name": "AgentLatestVersionAvailability",
+        "status": "Healthy",
+        "description": "Agent 'customer-support-agent' has at least one deployed version.",
+        "error": null
+      }
+    ]
+  },
+
+  "_example_response_not_found": {
+    "status": "Unhealthy",
+    "timestamp": "2024-06-01T10:00:00+00:00",
+    "agentName": "customer-support-agent",
+    "agentId": null,
+    "checks": [
+      {
+        "name": "AgentCatalogAvailability",
+        "status": "Unhealthy",
+        "description": "Agent 'customer-support-agent' was not found in the Foundry catalog.",
+        "error": "Agent not found (HTTP 404)."
+      },
+      {
+        "name": "AgentLatestVersionAvailability",
+        "status": "Unhealthy",
+        "description": "Failed to list versions for agent 'customer-support-agent'.",
+        "error": "Agent not found (HTTP 404)."
+      }
+    ]
+  },
+
+  "_example_response_no_versions": {
+    "status": "Degraded",
+    "timestamp": "2024-06-01T10:00:00+00:00",
+    "agentName": "customer-support-agent",
+    "agentId": "agent_abc123",
+    "checks": [
+      {
+        "name": "AgentCatalogAvailability",
+        "status": "Healthy",
+        "description": "Agent 'customer-support-agent' is registered in the Foundry catalog (id: agent_abc123).",
+        "error": null
+      },
+      {
+        "name": "AgentLatestVersionAvailability",
+        "status": "Degraded",
+        "description": "Agent 'customer-support-agent' has no deployed versions.",
+        "error": null
+      }
+    ]
+  },
+
+  "_notes": [
+    "Returns HTTP 200 when Healthy or Degraded.",
+    "Returns HTTP 503 when Unhealthy.",
+    "'AgentCatalogAvailability' checks the Foundry agent administration catalog.",
+    "'AgentLatestVersionAvailability' checks whether at least one version has been deployed for the agent."
+  ]
+}

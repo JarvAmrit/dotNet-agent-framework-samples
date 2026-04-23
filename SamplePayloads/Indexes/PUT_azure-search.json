@@ -1,0 +1,8 @@
+{
+  "_description": "PUT /api/indexes/{indexName}/versions/{indexVersion}/azure-search — Creates or updates an Azure AI Search–backed index version. Replace {indexName} and {indexVersion} in the URL.",
+  "_curl": "curl -X PUT 'https://localhost:5001/api/indexes/product-catalog-index/versions/1/azure-search' -H 'Content-Type: application/json' -d @PUT_azure-search.json",
+
+  "connectionName": "my-search-connection",
+  "indexName": "product-catalog",
+  "description": "Azure AI Search index for the product catalog. Used for semantic search over product descriptions and specifications."
+}

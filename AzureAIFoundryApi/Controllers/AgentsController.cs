@@ -1,4 +1,5 @@
 using System.ClientModel;
+using Azure.AI.Extensions.OpenAI;
 using Azure.AI.Projects;
 using Azure.AI.Projects.Agents;
 using AzureAIFoundryApi.Models;
@@ -251,4 +252,71 @@ public class AgentsController : ControllerBase
         _logger.LogInformation("Deleted agent successfully");
         return NoContent();
     }
+
+    /// <summary>
+    /// Invokes an agent by sending it a user message and returning the response.
+    /// Uses the Azure AI Foundry Responses API (<see cref="Azure.AI.Extensions.OpenAI.ProjectResponsesClient"/>)
+    /// to invoke the named agent.
+    /// To continue a conversation, pass the <c>responseId</c> from the previous
+    /// response as <c>previousResponseId</c> in the request body.
+    /// </summary>
+    /// <param name="agentName">
+    /// The name of the agent to invoke (must match the agent's <c>Name</c> field
+    /// in the Foundry catalog — see <c>GET /api/agents</c>).
+    /// </param>
+    /// <param name="request">The message to send and an optional <c>previousResponseId</c> for multi-turn conversations.</param>
+    /// <param name="conversationId">
+    /// Optional Foundry conversation tracking ID. Omit to skip conversation-level tracking.
+    /// </param>
+    [HttpPost("{agentName}/invoke")]
+    public async Task<IActionResult> InvokeAgent(
+        string agentName,
+        [FromBody] InvokeAgentRequest request,
+        [FromQuery] string? conversationId = null)
+    {
+        var client = _clientFactory.GetClient();
+
+        // Build an agent-scoped Responses client.
+        // AgentReference supports an implicit string conversion.
+        Azure.AI.Extensions.OpenAI.AgentReference agentRef = agentName;
+        var responsesClient = client.ProjectOpenAIClient
+            .GetProjectResponsesClientForAgent(agentRef, conversationId ?? string.Empty);
+
+        var result = await responsesClient.CreateResponseAsync(
+            request.Message,
+            request.PreviousResponseId);
+
+        var response = result.Value;
+
+        if (response.Status == OpenAI.Responses.ResponseStatus.Failed)
+        {
+            _logger.LogWarning("Agent invoke failed for '{AgentName}': {Error}",
+                Sanitize(agentName), Sanitize(response.Error?.Message));
+            return StatusCode(502, new
+            {
+                error = "Agent invocation failed.",
+                details = response.Error?.Message,
+                responseId = response.Id
+            });
+        }
+
+        _logger.LogInformation("Invoked agent '{AgentName}' successfully (response {ResponseId})",
+            Sanitize(agentName), Sanitize(response.Id));
+
+        return Ok(new InvokeAgentResponse
+        {
+            ResponseId = response.Id,
+            PreviousResponseId = response.PreviousResponseId,
+            Status = response.Status?.ToString() ?? "Completed",
+            AssistantMessage = response.GetOutputText()
+        });
+    }
+
+    /// <summary>
+    /// Removes newline characters from a value before it is written to a log entry
+    /// to prevent log-forging attacks.
+    /// </summary>
+    private static string? Sanitize(string? value) =>
+        value?.Replace("\r", string.Empty, StringComparison.Ordinal)
+              .Replace("\n", string.Empty, StringComparison.Ordinal);
 }

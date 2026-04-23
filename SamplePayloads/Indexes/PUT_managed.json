@@ -1,0 +1,7 @@
+{
+  "_description": "PUT /api/indexes/{indexName}/versions/{indexVersion}/managed — Creates or updates a Managed Azure AI Search (built-in vector store) index version. Replace {indexName} and {indexVersion} in the URL.",
+  "_curl": "curl -X PUT 'https://localhost:5001/api/indexes/embeddings-index/versions/1/managed' -H 'Content-Type: application/json' -d @PUT_managed.json",
+
+  "vectorStoreId": "vs_abc123xyz",
+  "description": "Managed vector store index for document embeddings. Automatically hosted and scaled by Azure AI Foundry."
+}
