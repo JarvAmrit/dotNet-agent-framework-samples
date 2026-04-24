@@ -1,0 +1,43 @@
+{
+  "_description": "GET /api/connections — Lists all connections in the project. The payload below shows the available query parameters with example values.",
+  "_curl_all": "curl 'https://localhost:5001/api/connections'",
+  "_curl_by_type": "curl 'https://localhost:5001/api/connections?type=AzureOpenAI'",
+  "_curl_default_only": "curl 'https://localhost:5001/api/connections?defaultOnly=true'",
+  "_curl_specific": "curl 'https://localhost:5001/api/connections/my-openai-connection?includeCredentials=false'",
+  "_curl_default_with_creds": "curl 'https://localhost:5001/api/connections/default?type=AzureOpenAI&includeCredentials=true'",
+
+  "_query_parameters": {
+    "type": {
+      "description": "Filter by connection type.",
+      "allowedValues": ["AzureOpenAI", "AzureAISearch", "AzureBlobStorage", "AzureStorageAccount", "CosmosDB", "APIKey", "ApplicationInsights", "Custom", "RemoteTool"],
+      "example": "AzureOpenAI"
+    },
+    "defaultOnly": {
+      "description": "When true, only default connections are returned.",
+      "type": "boolean",
+      "example": true
+    },
+    "includeCredentials": {
+      "description": "When true, API keys / SAS tokens are included in the response (use carefully).",
+      "type": "boolean",
+      "example": false
+    }
+  },
+
+  "_example_response": [
+    {
+      "name": "my-openai-connection",
+      "type": "AzureOpenAI",
+      "target": "https://myopenai.openai.azure.com/",
+      "isDefault": true,
+      "credentialType": "ApiKey"
+    },
+    {
+      "name": "my-search-connection",
+      "type": "AzureAISearch",
+      "target": "https://mysearch.search.windows.net",
+      "isDefault": false,
+      "credentialType": "ApiKey"
+    }
+  ]
+}

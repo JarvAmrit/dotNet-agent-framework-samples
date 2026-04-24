@@ -1,0 +1,35 @@
+{
+  "_description": "GET /api/health — Returns the overall health of the API and its connectivity to Azure AI Foundry. No request body required.",
+  "_curl": "curl 'https://localhost:5001/api/health'",
+
+  "_example_response_healthy": {
+    "status": "Healthy",
+    "timestamp": "2024-06-01T10:00:00+00:00",
+    "checks": [
+      {
+        "name": "FoundryConnectivity",
+        "status": "Healthy",
+        "description": "Successfully connected to the Azure AI Foundry project endpoint.",
+        "error": null
+      }
+    ]
+  },
+
+  "_example_response_unhealthy": {
+    "status": "Unhealthy",
+    "timestamp": "2024-06-01T10:00:00+00:00",
+    "checks": [
+      {
+        "name": "FoundryConnectivity",
+        "status": "Unhealthy",
+        "description": "Failed to connect to the Azure AI Foundry project endpoint.",
+        "error": "The remote server returned an error: (401) Unauthorized."
+      }
+    ]
+  },
+
+  "_notes": [
+    "Returns HTTP 200 when Healthy.",
+    "Returns HTTP 503 when Unhealthy."
+  ]
+}

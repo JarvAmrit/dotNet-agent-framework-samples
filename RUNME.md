@@ -139,6 +139,7 @@ https://localhost:5001/openapi/v1.json
 | `GET` | `/api/agents/{agentName}/versions/{version}` | Get a specific agent version |
 | `POST` | `/api/agents/prompt` | Create a new prompt (declarative) agent |
 | `POST` | `/api/agents/hosted` | Create a new hosted (containerized) agent |
+| `POST` | `/api/agents/{agentName}/invoke` | **Invoke** an agent — send a message and get the response |
 | `DELETE` | `/api/agents/{agentName}` | Delete an agent and all its versions |
 | `DELETE` | `/api/agents/{agentName}/versions/{version}` | Delete a specific agent version |
 
@@ -173,6 +174,28 @@ curl -X POST https://localhost:5001/api/agents/hosted \
     },
     "description": "A custom hosted agent"
   }'
+
+#### Example: Invoke an Agent
+
+```bash
+# Start a new conversation
+# Start a new conversation
+curl -X POST https://localhost:5001/api/agents/math-tutor/invoke \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Can you help me solve: 3x + 7 = 22?"
+  }'
+
+# Continue the same conversation using the responseId from the previous response
+curl -X POST https://localhost:5001/api/agents/math-tutor/invoke \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "What about 5x - 3 = 17?",
+    "previousResponseId": "<responseId from previous response>"
+  }'
+```
+
+Optional query parameter: `?conversationId=<id>` links the call to a Foundry conversation tracking record.
 ```
 
 ### Deployments (Model Management)
@@ -314,6 +337,108 @@ builder.Services.AddOpenTelemetry()
             options.ConnectionString = "<connection-string-from-api>"));
 ```
 
+### Health
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/health` | Overall API and Foundry connectivity health |
+| `GET` | `/api/health/agents/{agentName}` | Per-agent health — catalog + runtime availability |
+
+The health endpoints are designed for monitoring dashboards, alerting, and operational audits.
+
+#### Overall Health
+
+Returns `HTTP 200` (Healthy) or `HTTP 503` (Unhealthy) and a structured JSON payload describing the Foundry connectivity check.
+
+```bash
+curl https://localhost:5001/api/health
+```
+
+Example response:
+
+```json
+{
+  "status": "Healthy",
+  "timestamp": "2024-06-01T10:00:00+00:00",
+  "checks": [
+    {
+      "name": "FoundryConnectivity",
+      "status": "Healthy",
+      "description": "Successfully connected to the Azure AI Foundry project endpoint.",
+      "error": null
+    }
+  ]
+}
+```
+
+#### Per-Agent Health
+
+Checks two dimensions for a given agent and aggregates the result:
+
+| Check | What it verifies |
+|---|---|
+| `AgentCatalogAvailability` | Agent is registered in the Foundry catalog (`AgentAdministrationClient`) |
+| `AgentLatestVersionAvailability` | Agent has at least one deployed version in the catalog |
+
+Status values: `Healthy` → `Degraded` → `Unhealthy`. Returns `HTTP 200` for Healthy/Degraded, `HTTP 503` for Unhealthy.
+
+```bash
+curl https://localhost:5001/api/health/agents/math-tutor
+```
+
+Example response:
+
+```json
+{
+  "status": "Healthy",
+  "timestamp": "2024-06-01T10:00:00+00:00",
+  "agentName": "math-tutor",
+  "agentId": "agent_abc123",
+  "checks": [
+    {
+      "name": "AgentCatalogAvailability",
+      "status": "Healthy",
+      "description": "Agent 'math-tutor' is registered in the Foundry catalog (id: agent_abc123).",
+      "error": null
+    },
+    {
+      "name": "AgentLatestVersionAvailability",
+      "status": "Healthy",
+      "description": "Agent 'math-tutor' has at least one deployed version.",
+      "error": null
+    }
+  ]
+}
+```
+
+---
+
+## Sample Payloads
+
+The `SamplePayloads/` folder at the root of the repository contains ready-to-use JSON request bodies and response examples for every endpoint. Use them for manual testing, Postman imports, or documentation.
+
+```
+SamplePayloads/
+├── Agents/
+│   ├── POST_prompt.json          — POST /api/agents/prompt
+│   ├── POST_hosted.json          — POST /api/agents/hosted
+│   ├── POST_invoke.json          — POST /api/agents/{agentName}/invoke  (new conversation)
+│   └── POST_invoke_continue.json — POST /api/agents/{agentName}/invoke  (continue conversation)
+├── Connections/
+│   └── GET_list.json             — GET /api/connections  (query param examples)
+├── Deployments/
+│   └── GET_list.json             — GET /api/deployments  (query param examples)
+├── Indexes/
+│   ├── PUT_azure-search.json      — PUT /api/indexes/{name}/versions/{v}/azure-search
+│   └── PUT_managed.json           — PUT /api/indexes/{name}/versions/{v}/managed
+├── Datasets/
+│   ├── PUT_file.json              — PUT /api/datasets/{name}/versions/{v}/file
+│   └── PUT_folder.json            — PUT /api/datasets/{name}/versions/{v}/folder
+└── Health/
+    ├── GET_overall.json           — Response example: GET /api/health
+    └── GET_agent.json             — Response example: GET /api/health/agents/{agentName}
+```
+
 ---
 
 ## Project Structure
@@ -324,10 +449,11 @@ AzureAIFoundryApi/
 │   ├── AzureFoundrySettings.cs       # Foundry project endpoint config
 │   └── ServicePrincipalSettings.cs   # Service Principal auth config (secret & certificate)
 ├── Controllers/
-│   ├── AgentsController.cs           # Agent CRUD endpoints
+│   ├── AgentsController.cs           # Agent CRUD + invoke endpoints
 │   ├── ConnectionsController.cs      # Connection list/get endpoints
 │   ├── DatasetsController.cs         # Dataset CRUD endpoints
 │   ├── DeploymentsController.cs      # Model deployment endpoints
+│   ├── HealthController.cs           # Health check endpoints (overall + per-agent)
 │   ├── IndexesController.cs          # Index CRUD endpoints
 │   └── TelemetryController.cs        # Application Insights telemetry endpoint
 ├── Models/
@@ -335,7 +461,9 @@ AzureAIFoundryApi/
 │   ├── ConnectionModels.cs           # Response models for connections
 │   ├── DatasetModels.cs              # Request/response models for datasets
 │   ├── DeploymentModels.cs           # Response models for deployments
+│   ├── HealthModels.cs               # Models for health check responses
 │   ├── IndexModels.cs                # Request/response models for indexes
+│   ├── InvokeModels.cs               # Request/response models for agent invoke
 │   └── TelemetryModels.cs            # Response models for telemetry
 ├── Services/
 │   ├── AIProjectClientFactory.cs     # Factory for AIProjectClient

@@ -1,0 +1,9 @@
+{
+  "_description": "POST /api/agents/prompt — Creates a new declarative (prompt) agent version in Azure AI Foundry.",
+  "_curl": "curl -X POST https://localhost:5001/api/agents/prompt -H 'Content-Type: application/json' -d @POST_prompt.json",
+
+  "agentName": "customer-support-agent",
+  "model": "gpt-4o",
+  "instructions": "You are a helpful customer support agent. Greet the user warmly, identify their issue, and provide clear step-by-step guidance. Escalate to a human if the issue cannot be resolved within three exchanges.",
+  "description": "Handles tier-1 customer support queries using GPT-4o."
+}

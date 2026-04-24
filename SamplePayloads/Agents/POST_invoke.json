@@ -1,0 +1,28 @@
+{
+  "_description": "POST /api/agents/{agentName}/invoke — Sends a message to an agent using the Azure AI Foundry Responses API and returns the assistant's reply. Replace {agentName} in the URL with your agent name (e.g., customer-support-agent).",
+  "_curl_new_conversation": "curl -X POST https://localhost:5001/api/agents/customer-support-agent/invoke -H 'Content-Type: application/json' -d @POST_invoke.json",
+  "_curl_continue_conversation": "curl -X POST https://localhost:5001/api/agents/customer-support-agent/invoke -H 'Content-Type: application/json' -d @POST_invoke_continue.json",
+  "_curl_with_conversation_tracking": "curl -X POST 'https://localhost:5001/api/agents/customer-support-agent/invoke?conversationId=my-conv-123' -H 'Content-Type: application/json' -d @POST_invoke.json",
+
+  "message": "Hi! My order #12345 hasn't arrived yet. It was supposed to be delivered three days ago. Can you help?",
+  "previousResponseId": null,
+
+  "_notes": [
+    "Set 'previousResponseId' to the 'responseId' from the previous response to continue the same conversation.",
+    "Omit 'previousResponseId' (or set to null) to start a fresh conversation.",
+    "Optional query param '?conversationId=<id>' links the conversation to a Foundry conversation record.",
+    "The returned 'responseId' should be saved and passed as 'previousResponseId' in follow-up calls."
+  ],
+
+  "_example_response": {
+    "responseId": "resp_abc123xyz",
+    "previousResponseId": null,
+    "status": "Completed",
+    "assistantMessage": "Hello! I'm sorry to hear your order hasn't arrived yet. Let me look into order #12345 for you right away. Could you please confirm the email address used when placing the order so I can pull up the details?"
+  },
+
+  "_example_follow_up_request": {
+    "message": "Sure, the email is john.doe@example.com.",
+    "previousResponseId": "resp_abc123xyz"
+  }
+}
