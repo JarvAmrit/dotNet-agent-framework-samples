@@ -27,6 +27,7 @@ public class ConnectionsController : ControllerBase
     /// <summary>
     /// Lists all connections in the Azure AI Foundry project.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     /// <param name="type">
     /// Optional filter by connection type. Supported values: AzureOpenAI, AzureAISearch,
     /// AzureBlobStorage, AzureStorageAccount, CosmosDB, APIKey, ApplicationInsights, Custom, RemoteTool.
@@ -36,10 +37,11 @@ public class ConnectionsController : ControllerBase
     /// </param>
     [HttpGet]
     public async Task<IActionResult> ListConnections(
+        [FromQuery] string projectEndpoint,
         [FromQuery] string? type = null,
         [FromQuery] bool? defaultOnly = null)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var connectionsClient = client.Connections;
 
         ConnectionType? connectionType = type is not null ? new ConnectionType(type) : null;
@@ -56,6 +58,7 @@ public class ConnectionsController : ControllerBase
     /// <summary>
     /// Gets the default connection of a given type in the Azure AI Foundry project.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     /// <param name="type">
     /// Optional connection type filter. Supported values: AzureOpenAI, AzureAISearch,
     /// AzureBlobStorage, AzureStorageAccount, CosmosDB, APIKey, ApplicationInsights, Custom, RemoteTool.
@@ -65,12 +68,13 @@ public class ConnectionsController : ControllerBase
     /// </param>
     [HttpGet("default")]
     public async Task<IActionResult> GetDefaultConnection(
+        [FromQuery] string projectEndpoint,
         [FromQuery] string? type = null,
         [FromQuery] bool includeCredentials = false)
     {
         ConnectionType? connectionType = type is not null ? new ConnectionType(type) : null;
 
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var connectionsClient = client.Connections;
 
         var connection = await connectionsClient.GetDefaultConnectionAsync(connectionType, includeCredentials);
@@ -85,17 +89,19 @@ public class ConnectionsController : ControllerBase
     /// Gets a specific connection by name.
     /// </summary>
     /// <param name="connectionName">The name of the connection.</param>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     /// <param name="includeCredentials">
     /// When true, credentials are included in the response. Defaults to false.
     /// </param>
     [HttpGet("{connectionName}")]
     public async Task<IActionResult> GetConnection(
         string connectionName,
+        [FromQuery] string projectEndpoint,
         [FromQuery] bool includeCredentials = false)
     {
         try
         {
-            var client = _clientFactory.GetClient();
+            var client = _clientFactory.GetClient(projectEndpoint);
             var connectionsClient = client.Connections;
 
             var connection = await connectionsClient.GetConnectionAsync(connectionName, includeCredentials);

@@ -1,8 +1,8 @@
 {
   "_description": "POST /api/agents/{agentName}/invoke — Sends a message to an agent using the Azure AI Foundry Responses API and returns the assistant's reply. Replace {agentName} in the URL with your agent name (e.g., customer-support-agent).",
-  "_curl_new_conversation": "curl -X POST https://localhost:5001/api/agents/customer-support-agent/invoke -H 'Content-Type: application/json' -d @POST_invoke.json",
-  "_curl_continue_conversation": "curl -X POST https://localhost:5001/api/agents/customer-support-agent/invoke -H 'Content-Type: application/json' -d @POST_invoke_continue.json",
-  "_curl_with_conversation_tracking": "curl -X POST 'https://localhost:5001/api/agents/customer-support-agent/invoke?conversationId=my-conv-123' -H 'Content-Type: application/json' -d @POST_invoke.json",
+  "_curl_new_conversation": "curl -X POST 'https://localhost:5001/api/agents/customer-support-agent/invoke?projectEndpoint=https://your-project.services.ai.azure.com' -H 'Content-Type: application/json' -d @POST_invoke.json",
+  "_curl_continue_conversation": "curl -X POST 'https://localhost:5001/api/agents/customer-support-agent/invoke?projectEndpoint=https://your-project.services.ai.azure.com' -H 'Content-Type: application/json' -d @POST_invoke_continue.json",
+  "_curl_with_conversation_tracking": "curl -X POST 'https://localhost:5001/api/agents/customer-support-agent/invoke?projectEndpoint=https://your-project.services.ai.azure.com&conversationId=my-conv-123' -H 'Content-Type: application/json' -d @POST_invoke.json",
 
   "message": "Hi! My order #12345 hasn't arrived yet. It was supposed to be delivered three days ago. Can you help?",
   "previousResponseId": null,
@@ -10,6 +10,7 @@
   "_notes": [
     "Set 'previousResponseId' to the 'responseId' from the previous response to continue the same conversation.",
     "Omit 'previousResponseId' (or set to null) to start a fresh conversation.",
+    "Required query param '?projectEndpoint=<url>' specifies the Azure AI Foundry project to target.",
     "Optional query param '?conversationId=<id>' links the conversation to a Foundry conversation record.",
     "The returned 'responseId' should be saved and passed as 'previousResponseId' in follow-up calls."
   ],

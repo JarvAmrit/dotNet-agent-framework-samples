@@ -1,6 +1,6 @@
 {
   "_description": "PUT /api/datasets/{datasetName}/versions/{datasetVersion}/folder — Creates or updates a folder dataset version backed by a storage prefix (folder) in Azure Blob Storage. Replace {datasetName} and {datasetVersion} in the URL.",
-  "_curl": "curl -X PUT 'https://localhost:5001/api/datasets/evaluation-suite/versions/2/folder' -H 'Content-Type: application/json' -d @PUT_folder.json",
+  "_curl": "curl -X PUT 'https://localhost:5001/api/datasets/evaluation-suite/versions/2/folder?projectEndpoint=https://your-project.services.ai.azure.com' -H 'Content-Type: application/json' -d @PUT_folder.json",
 
   "dataUri": "https://mystorageaccount.blob.core.windows.net/datasets/evaluation/v2/",
   "connectionName": "my-storage-connection",

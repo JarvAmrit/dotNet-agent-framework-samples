@@ -28,10 +28,11 @@ public class DatasetsController : ControllerBase
     /// <summary>
     /// Lists all datasets registered in the Azure AI Foundry project.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpGet]
-    public async Task<IActionResult> ListDatasets()
+    public async Task<IActionResult> ListDatasets([FromQuery] string projectEndpoint)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var datasetsClient = client.Datasets;
 
         var datasets = new List<DatasetResponse>();
@@ -46,10 +47,11 @@ public class DatasetsController : ControllerBase
     /// <summary>
     /// Lists all versions of a specific dataset.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpGet("{datasetName}/versions")]
-    public async Task<IActionResult> ListDatasetVersions(string datasetName)
+    public async Task<IActionResult> ListDatasetVersions(string datasetName, [FromQuery] string projectEndpoint)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var datasetsClient = client.Datasets;
 
         var versions = new List<DatasetResponse>();
@@ -64,12 +66,13 @@ public class DatasetsController : ControllerBase
     /// <summary>
     /// Gets a specific version of a dataset.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpGet("{datasetName}/versions/{datasetVersion}")]
-    public async Task<IActionResult> GetDatasetVersion(string datasetName, string datasetVersion)
+    public async Task<IActionResult> GetDatasetVersion(string datasetName, string datasetVersion, [FromQuery] string projectEndpoint)
     {
         try
         {
-            var client = _clientFactory.GetClient();
+            var client = _clientFactory.GetClient(projectEndpoint);
             var datasetsClient = client.Datasets;
 
             var result = await datasetsClient.GetDatasetAsync(datasetName, datasetVersion);
@@ -85,13 +88,15 @@ public class DatasetsController : ControllerBase
     /// Creates or updates a file dataset version in the Foundry project.
     /// A file dataset references a single file in Azure Blob Storage.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpPut("{datasetName}/versions/{datasetVersion}/file")]
     public async Task<IActionResult> CreateOrUpdateFileDataset(
         string datasetName,
         string datasetVersion,
-        [FromBody] CreateFileDatasetRequest request)
+        [FromBody] CreateFileDatasetRequest request,
+        [FromQuery] string projectEndpoint)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var datasetsClient = client.Datasets;
 
         var dataset = new FileDataset(new Uri(request.DataUri))
@@ -116,13 +121,15 @@ public class DatasetsController : ControllerBase
     /// Creates or updates a folder dataset version in the Foundry project.
     /// A folder dataset references a folder (prefix) in Azure Blob Storage.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpPut("{datasetName}/versions/{datasetVersion}/folder")]
     public async Task<IActionResult> CreateOrUpdateFolderDataset(
         string datasetName,
         string datasetVersion,
-        [FromBody] CreateFolderDatasetRequest request)
+        [FromBody] CreateFolderDatasetRequest request,
+        [FromQuery] string projectEndpoint)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var datasetsClient = client.Datasets;
 
         var dataset = new FolderDataset(new Uri(request.DataUri))
@@ -146,10 +153,11 @@ public class DatasetsController : ControllerBase
     /// <summary>
     /// Deletes a specific version of a dataset.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpDelete("{datasetName}/versions/{datasetVersion}")]
-    public async Task<IActionResult> DeleteDatasetVersion(string datasetName, string datasetVersion)
+    public async Task<IActionResult> DeleteDatasetVersion(string datasetName, string datasetVersion, [FromQuery] string projectEndpoint)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var datasetsClient = client.Datasets;
 
         await datasetsClient.DeleteAsync(datasetName, datasetVersion);

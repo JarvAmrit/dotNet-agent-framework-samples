@@ -1,11 +1,15 @@
 {
   "_description": "GET /api/deployments — Lists model deployments in the project. The payload below shows query parameters with example values.",
-  "_curl_all": "curl 'https://localhost:5001/api/deployments'",
-  "_curl_by_publisher": "curl 'https://localhost:5001/api/deployments?modelPublisher=OpenAI'",
-  "_curl_by_model": "curl 'https://localhost:5001/api/deployments?modelName=gpt-4o'",
-  "_curl_specific": "curl 'https://localhost:5001/api/deployments/my-gpt4o-deployment'",
+  "_curl_all": "curl 'https://localhost:5001/api/deployments?projectEndpoint=https://your-project.services.ai.azure.com'",
+  "_curl_by_publisher": "curl 'https://localhost:5001/api/deployments?projectEndpoint=https://your-project.services.ai.azure.com&modelPublisher=OpenAI'",
+  "_curl_by_model": "curl 'https://localhost:5001/api/deployments?projectEndpoint=https://your-project.services.ai.azure.com&modelName=gpt-4o'",
+  "_curl_specific": "curl 'https://localhost:5001/api/deployments/my-gpt4o-deployment?projectEndpoint=https://your-project.services.ai.azure.com'",
 
   "_query_parameters": {
+    "projectEndpoint": {
+      "description": "Required. The Azure AI Foundry project endpoint URL.",
+      "example": "https://your-project.services.ai.azure.com"
+    },
     "modelPublisher": {
       "description": "Filter by the model publisher.",
       "example": "OpenAI"

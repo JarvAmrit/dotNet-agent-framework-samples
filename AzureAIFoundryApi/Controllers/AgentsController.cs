@@ -27,11 +27,12 @@ public class AgentsController : ControllerBase
     /// <summary>
     /// Lists all agents in the Azure AI Foundry project.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     /// <param name="kind">Optional filter by agent kind: Prompt, Hosted, or Workflow.</param>
     [HttpGet]
-    public async Task<IActionResult> ListAgents([FromQuery] string? kind = null)
+    public async Task<IActionResult> ListAgents([FromQuery] string projectEndpoint, [FromQuery] string? kind = null)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var agentAdmin = client.AgentAdministrationClient;
 
         ProjectsAgentKind? agentKind = kind?.ToLowerInvariant() switch
@@ -58,12 +59,13 @@ public class AgentsController : ControllerBase
     /// <summary>
     /// Gets a specific agent by name.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpGet("{agentName}")]
-    public async Task<IActionResult> GetAgent(string agentName)
+    public async Task<IActionResult> GetAgent(string agentName, [FromQuery] string projectEndpoint)
     {
         try
         {
-            var client = _clientFactory.GetClient();
+            var client = _clientFactory.GetClient(projectEndpoint);
             var agentAdmin = client.AgentAdministrationClient;
 
             var result = await agentAdmin.GetAgentAsync(agentName);
@@ -83,10 +85,11 @@ public class AgentsController : ControllerBase
     /// <summary>
     /// Lists all versions of a specific agent.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpGet("{agentName}/versions")]
-    public async Task<IActionResult> ListAgentVersions(string agentName)
+    public async Task<IActionResult> ListAgentVersions(string agentName, [FromQuery] string projectEndpoint)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var agentAdmin = client.AgentAdministrationClient;
 
         var versions = new List<AgentVersionResponse>();
@@ -106,12 +109,13 @@ public class AgentsController : ControllerBase
     /// <summary>
     /// Gets a specific version of an agent.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpGet("{agentName}/versions/{agentVersion}")]
-    public async Task<IActionResult> GetAgentVersion(string agentName, string agentVersion)
+    public async Task<IActionResult> GetAgentVersion(string agentName, string agentVersion, [FromQuery] string projectEndpoint)
     {
         try
         {
-            var client = _clientFactory.GetClient();
+            var client = _clientFactory.GetClient(projectEndpoint);
             var agentAdmin = client.AgentAdministrationClient;
 
             var result = await agentAdmin.GetAgentVersionAsync(agentName, agentVersion);
@@ -133,10 +137,11 @@ public class AgentsController : ControllerBase
     /// Creates a new prompt agent version in Azure AI Foundry.
     /// Prompt agents are declarative agents powered by a model deployment.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpPost("prompt")]
-    public async Task<IActionResult> CreatePromptAgent([FromBody] CreateAgentRequest request)
+    public async Task<IActionResult> CreatePromptAgent([FromBody] CreateAgentRequest request, [FromQuery] string projectEndpoint)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var agentAdmin = client.AgentAdministrationClient;
 
         var definition = new DeclarativeAgentDefinition(model: request.Model)
@@ -171,10 +176,11 @@ public class AgentsController : ControllerBase
     /// Creates a new hosted agent version in Azure AI Foundry.
     /// Hosted agents run as containerized services within Foundry.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpPost("hosted")]
-    public async Task<IActionResult> CreateHostedAgent([FromBody] CreateHostedAgentRequest request)
+    public async Task<IActionResult> CreateHostedAgent([FromBody] CreateHostedAgentRequest request, [FromQuery] string projectEndpoint)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var agentAdmin = client.AgentAdministrationClient;
 
         var versions = new List<ProtocolVersionRecord>();
@@ -226,10 +232,11 @@ public class AgentsController : ControllerBase
     /// <summary>
     /// Deletes a specific version of an agent.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpDelete("{agentName}/versions/{agentVersion}")]
-    public async Task<IActionResult> DeleteAgentVersion(string agentName, string agentVersion)
+    public async Task<IActionResult> DeleteAgentVersion(string agentName, string agentVersion, [FromQuery] string projectEndpoint)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var agentAdmin = client.AgentAdministrationClient;
 
         await agentAdmin.DeleteAgentVersionAsync(agentName, agentVersion);
@@ -241,10 +248,11 @@ public class AgentsController : ControllerBase
     /// <summary>
     /// Deletes an agent and all its versions.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpDelete("{agentName}")]
-    public async Task<IActionResult> DeleteAgent(string agentName)
+    public async Task<IActionResult> DeleteAgent(string agentName, [FromQuery] string projectEndpoint)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var agentAdmin = client.AgentAdministrationClient;
 
         await agentAdmin.DeleteAgentAsync(agentName);
@@ -265,6 +273,7 @@ public class AgentsController : ControllerBase
     /// in the Foundry catalog — see <c>GET /api/agents</c>).
     /// </param>
     /// <param name="request">The message to send and an optional <c>previousResponseId</c> for multi-turn conversations.</param>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     /// <param name="conversationId">
     /// Optional Foundry conversation tracking ID. Omit to skip conversation-level tracking.
     /// </param>
@@ -272,9 +281,10 @@ public class AgentsController : ControllerBase
     public async Task<IActionResult> InvokeAgent(
         string agentName,
         [FromBody] InvokeAgentRequest request,
+        [FromQuery] string projectEndpoint,
         [FromQuery] string? conversationId = null)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
 
         // Build an agent-scoped Responses client.
         // AgentReference supports an implicit string conversion.

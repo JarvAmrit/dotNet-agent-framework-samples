@@ -1,13 +1,6 @@
-using AzureAIFoundryApi.Configuration;
 using AzureAIFoundryApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Bind configuration sections
-builder.Services.Configure<AzureFoundrySettings>(
-    builder.Configuration.GetSection(AzureFoundrySettings.SectionName));
-builder.Services.Configure<ServicePrincipalSettings>(
-    builder.Configuration.GetSection(ServicePrincipalSettings.SectionName));
 
 // Register services
 builder.Services.AddSingleton<CredentialFactory>();

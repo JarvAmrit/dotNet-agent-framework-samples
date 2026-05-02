@@ -26,16 +26,18 @@ public class DeploymentsController : ControllerBase
     /// <summary>
     /// Lists all model deployments in the Azure AI Foundry project.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     /// <param name="modelPublisher">Optional filter by model publisher (e.g., "Microsoft", "OpenAI").</param>
     /// <param name="modelName">Optional filter by model name.</param>
     /// <param name="deploymentType">Optional filter by deployment type (e.g., "ModelDeployment").</param>
     [HttpGet]
     public IActionResult ListDeployments(
+        [FromQuery] string projectEndpoint,
         [FromQuery] string? modelPublisher = null,
         [FromQuery] string? modelName = null,
         [FromQuery] string? deploymentType = null)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var deploymentsClient = client.Deployments;
 
         AIProjectDeploymentType? typeFilter = null;
@@ -59,12 +61,13 @@ public class DeploymentsController : ControllerBase
     /// <summary>
     /// Gets details of a specific model deployment by name.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpGet("{deploymentName}")]
-    public IActionResult GetDeployment(string deploymentName)
+    public IActionResult GetDeployment(string deploymentName, [FromQuery] string projectEndpoint)
     {
         try
         {
-            var client = _clientFactory.GetClient();
+            var client = _clientFactory.GetClient(projectEndpoint);
             var deploymentsClient = client.Deployments;
 
             var result = deploymentsClient.GetDeployment(deploymentName);
