@@ -28,8 +28,9 @@ public class HealthController : ControllerBase
     /// Performs a lightweight probe (lists one deployment) to verify the Foundry
     /// project endpoint is reachable and credentials are valid.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpGet]
-    public async Task<IActionResult> GetHealth()
+    public async Task<IActionResult> GetHealth([FromQuery] string projectEndpoint)
     {
         var response = new HealthResponse
         {
@@ -40,7 +41,7 @@ public class HealthController : ControllerBase
 
         try
         {
-            var client = _clientFactory.GetClient();
+            var client = _clientFactory.GetClient(projectEndpoint);
 
             // Lightweight probe: attempt to list one deployment to confirm connectivity
             await foreach (var _ in client.Deployments.GetDeploymentsAsync())
@@ -70,8 +71,9 @@ public class HealthController : ControllerBase
     /// identifier. Use this for per-agent audit and monitoring.
     /// </summary>
     /// <param name="agentName">The name of the agent to check.</param>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpGet("agents/{agentName}")]
-    public async Task<IActionResult> GetAgentHealth(string agentName)
+    public async Task<IActionResult> GetAgentHealth(string agentName, [FromQuery] string projectEndpoint)
     {
         var response = new AgentHealthResponse
         {
@@ -85,7 +87,7 @@ public class HealthController : ControllerBase
         // --- Catalog check: verify the agent record exists ---
         try
         {
-            var client = _clientFactory.GetClient();
+            var client = _clientFactory.GetClient(projectEndpoint);
             var agentAdmin = client.AgentAdministrationClient;
             var result = await agentAdmin.GetAgentAsync(agentName);
             var agent = result.Value;
@@ -112,7 +114,7 @@ public class HealthController : ControllerBase
         // --- Latest version check: verify at least one version is deployed ---
         try
         {
-            var client = _clientFactory.GetClient();
+            var client = _clientFactory.GetClient(projectEndpoint);
             var agentAdmin = client.AgentAdministrationClient;
             bool hasVersion = false;
             await foreach (var _ in agentAdmin.GetAgentVersionsAsync(agentName))

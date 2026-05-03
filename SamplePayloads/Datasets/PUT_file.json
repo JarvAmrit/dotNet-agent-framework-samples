@@ -1,6 +1,6 @@
 {
   "_description": "PUT /api/datasets/{datasetName}/versions/{datasetVersion}/file — Creates or updates a file dataset version backed by a single file in Azure Blob Storage. Replace {datasetName} and {datasetVersion} in the URL.",
-  "_curl": "curl -X PUT 'https://localhost:5001/api/datasets/training-data/versions/1/file' -H 'Content-Type: application/json' -d @PUT_file.json",
+  "_curl": "curl -X PUT 'https://localhost:5001/api/datasets/training-data/versions/1/file?projectEndpoint=https://your-project.services.ai.azure.com' -H 'Content-Type: application/json' -d @PUT_file.json",
 
   "dataUri": "https://mystorageaccount.blob.core.windows.net/datasets/training/conversations.jsonl",
   "connectionName": "my-storage-connection",

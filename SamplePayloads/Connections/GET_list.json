@@ -1,12 +1,16 @@
 {
   "_description": "GET /api/connections — Lists all connections in the project. The payload below shows the available query parameters with example values.",
-  "_curl_all": "curl 'https://localhost:5001/api/connections'",
-  "_curl_by_type": "curl 'https://localhost:5001/api/connections?type=AzureOpenAI'",
-  "_curl_default_only": "curl 'https://localhost:5001/api/connections?defaultOnly=true'",
-  "_curl_specific": "curl 'https://localhost:5001/api/connections/my-openai-connection?includeCredentials=false'",
-  "_curl_default_with_creds": "curl 'https://localhost:5001/api/connections/default?type=AzureOpenAI&includeCredentials=true'",
+  "_curl_all": "curl 'https://localhost:5001/api/connections?projectEndpoint=https://your-project.services.ai.azure.com'",
+  "_curl_by_type": "curl 'https://localhost:5001/api/connections?projectEndpoint=https://your-project.services.ai.azure.com&type=AzureOpenAI'",
+  "_curl_default_only": "curl 'https://localhost:5001/api/connections?projectEndpoint=https://your-project.services.ai.azure.com&defaultOnly=true'",
+  "_curl_specific": "curl 'https://localhost:5001/api/connections/my-openai-connection?projectEndpoint=https://your-project.services.ai.azure.com&includeCredentials=false'",
+  "_curl_default_with_creds": "curl 'https://localhost:5001/api/connections/default?projectEndpoint=https://your-project.services.ai.azure.com&type=AzureOpenAI&includeCredentials=true'",
 
   "_query_parameters": {
+    "projectEndpoint": {
+      "description": "Required. The Azure AI Foundry project endpoint URL.",
+      "example": "https://your-project.services.ai.azure.com"
+    },
     "type": {
       "description": "Filter by connection type.",
       "allowedValues": ["AzureOpenAI", "AzureAISearch", "AzureBlobStorage", "AzureStorageAccount", "CosmosDB", "APIKey", "ApplicationInsights", "Custom", "RemoteTool"],

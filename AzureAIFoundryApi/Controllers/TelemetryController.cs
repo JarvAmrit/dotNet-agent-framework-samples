@@ -28,10 +28,11 @@ public class TelemetryController : ControllerBase
     /// Use this connection string to configure OpenTelemetry or Application Insights SDKs
     /// to send traces and logs to the Foundry-linked Application Insights workspace.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpGet("app-insights")]
-    public async Task<IActionResult> GetAppInsightsConnectionString()
+    public async Task<IActionResult> GetAppInsightsConnectionString([FromQuery] string projectEndpoint)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var telemetry = client.Telemetry;
 
         var connectionString = await telemetry.GetApplicationInsightsConnectionStringAsync();

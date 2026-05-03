@@ -1,6 +1,6 @@
 {
   "_description": "GET /api/health — Returns the overall health of the API and its connectivity to Azure AI Foundry. No request body required.",
-  "_curl": "curl 'https://localhost:5001/api/health'",
+  "_curl": "curl 'https://localhost:5001/api/health?projectEndpoint=https://your-project.services.ai.azure.com'",
 
   "_example_response_healthy": {
     "status": "Healthy",

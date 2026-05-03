@@ -1,6 +1,6 @@
 {
   "_description": "POST /api/agents/hosted — Creates a new hosted (containerized) agent version in Azure AI Foundry.",
-  "_curl": "curl -X POST https://localhost:5001/api/agents/hosted -H 'Content-Type: application/json' -d @POST_hosted.json",
+  "_curl": "curl -X POST 'https://localhost:5001/api/agents/hosted?projectEndpoint=https://your-project.services.ai.azure.com' -H 'Content-Type: application/json' -d @POST_hosted.json",
 
   "agentName": "data-processing-agent",
   "image": "myregistry.azurecr.io/data-processor:2.1.0",

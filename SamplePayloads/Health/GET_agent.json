@@ -1,6 +1,6 @@
 {
   "_description": "GET /api/health/agents/{agentName} — Returns the health of a specific agent. Replace {agentName} with the agent name (e.g., customer-support-agent). No request body required.",
-  "_curl": "curl 'https://localhost:5001/api/health/agents/customer-support-agent'",
+  "_curl": "curl 'https://localhost:5001/api/health/agents/customer-support-agent?projectEndpoint=https://your-project.services.ai.azure.com'",
 
   "_example_response_healthy": {
     "status": "Healthy",

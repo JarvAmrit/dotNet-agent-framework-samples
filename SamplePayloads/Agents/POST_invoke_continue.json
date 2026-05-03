@@ -1,6 +1,6 @@
 {
   "_description": "POST /api/agents/{agentName}/invoke — Continues an existing conversation by passing the 'responseId' from a previous response as 'previousResponseId'. Replace {agentName} in the URL.",
-  "_curl": "curl -X POST https://localhost:5001/api/agents/customer-support-agent/invoke -H 'Content-Type: application/json' -d @POST_invoke_continue.json",
+  "_curl": "curl -X POST 'https://localhost:5001/api/agents/customer-support-agent/invoke?projectEndpoint=https://your-project.services.ai.azure.com' -H 'Content-Type: application/json' -d @POST_invoke_continue.json",
 
   "message": "Sure, the email is john.doe@example.com.",
   "previousResponseId": "resp_abc123xyz",

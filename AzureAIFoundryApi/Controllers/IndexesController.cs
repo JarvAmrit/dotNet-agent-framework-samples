@@ -26,10 +26,11 @@ public class IndexesController : ControllerBase
     /// <summary>
     /// Lists all indexes registered in the Azure AI Foundry project.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpGet]
-    public async Task<IActionResult> ListIndexes()
+    public async Task<IActionResult> ListIndexes([FromQuery] string projectEndpoint)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var indexesClient = client.Indexes;
 
         var indexes = new List<IndexResponse>();
@@ -44,11 +45,12 @@ public class IndexesController : ControllerBase
     /// <summary>
     /// Lists all versions of a specific index.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpGet("{indexName}/versions")]
-    public async Task<IActionResult> ListIndexVersions(string indexName)
+    public async Task<IActionResult> ListIndexVersions(string indexName, [FromQuery] string projectEndpoint)
     {
         var indexes = new List<IndexResponse>();
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var indexesClient = client.Indexes;
 
         await foreach (var index in indexesClient.GetIndexVersionsAsync(indexName))
@@ -62,12 +64,13 @@ public class IndexesController : ControllerBase
     /// <summary>
     /// Gets a specific version of an index.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpGet("{indexName}/versions/{indexVersion}")]
-    public async Task<IActionResult> GetIndexVersion(string indexName, string indexVersion)
+    public async Task<IActionResult> GetIndexVersion(string indexName, string indexVersion, [FromQuery] string projectEndpoint)
     {
         try
         {
-            var client = _clientFactory.GetClient();
+            var client = _clientFactory.GetClient(projectEndpoint);
             var indexesClient = client.Indexes;
 
             var result = await indexesClient.GetIndexAsync(indexName, indexVersion);
@@ -82,13 +85,15 @@ public class IndexesController : ControllerBase
     /// <summary>
     /// Creates or updates an Azure AI Search index version in the Foundry project.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpPut("{indexName}/versions/{indexVersion}/azure-search")]
     public async Task<IActionResult> CreateOrUpdateAzureSearchIndex(
         string indexName,
         string indexVersion,
-        [FromBody] CreateAzureAISearchIndexRequest request)
+        [FromBody] CreateAzureAISearchIndexRequest request,
+        [FromQuery] string projectEndpoint)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var indexesClient = client.Indexes;
 
         var index = new AzureAISearchIndex(request.ConnectionName, request.IndexName)
@@ -105,13 +110,15 @@ public class IndexesController : ControllerBase
     /// <summary>
     /// Creates or updates a Managed Azure AI Search index version in the Foundry project.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpPut("{indexName}/versions/{indexVersion}/managed")]
     public async Task<IActionResult> CreateOrUpdateManagedIndex(
         string indexName,
         string indexVersion,
-        [FromBody] CreateManagedIndexRequest request)
+        [FromBody] CreateManagedIndexRequest request,
+        [FromQuery] string projectEndpoint)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var indexesClient = client.Indexes;
 
         var index = new ManagedAzureAISearchIndex(request.VectorStoreId)
@@ -128,10 +135,11 @@ public class IndexesController : ControllerBase
     /// <summary>
     /// Deletes a specific version of an index.
     /// </summary>
+    /// <param name="projectEndpoint">The Azure AI Foundry project endpoint URL (e.g., https://your-project.services.ai.azure.com).</param>
     [HttpDelete("{indexName}/versions/{indexVersion}")]
-    public async Task<IActionResult> DeleteIndexVersion(string indexName, string indexVersion)
+    public async Task<IActionResult> DeleteIndexVersion(string indexName, string indexVersion, [FromQuery] string projectEndpoint)
     {
-        var client = _clientFactory.GetClient();
+        var client = _clientFactory.GetClient(projectEndpoint);
         var indexesClient = client.Indexes;
 
         await indexesClient.DeleteAsync(indexName, indexVersion);
