@@ -1,0 +1,20 @@
+{
+  "_description": "POST /api/agents/prompt — Creates a declarative (prompt) agent grounded on an Azure AI Search index that indexes content from an Azure Storage Account.",
+  "_curl": "curl -X POST 'https://localhost:5001/api/agents/prompt?projectEndpoint=https://your-project.services.ai.azure.com' -H 'Content-Type: application/json' -d @POST_prompt_with_search.json",
+
+  "agentName": "storage-grounded-agent",
+  "model": "gpt-4o",
+  "instructions": "You are a knowledgeable assistant. Use the provided knowledge base to answer questions accurately. Cite the relevant document when possible.",
+  "description": "Agent grounded on blob-storage content via Azure AI Search.",
+
+  "searchTools": [
+    {
+      "_comment": "connectionName must match an Azure AI Search connection visible via GET /api/connections?type=AzureAISearch. The search index should be configured to ingest documents from your Azure Storage Account.",
+      "connectionName": "my-ai-search-connection",
+      "indexName": "my-storage-index",
+      "queryType": "semantic",
+      "topK": 5,
+      "filter": null
+    }
+  ]
+}

@@ -149,6 +149,34 @@ public class AgentsController : ControllerBase
             Instructions = request.Instructions
         };
 
+        // Attach Azure AI Search grounding tools (backed by storage account content).
+        // ProjectsAgentTool carries an implicit conversion to ResponseTool, so each
+        // tool can be added directly to the DeclarativeAgentDefinition.Tools list.
+        if (request.SearchTools is { Count: > 0 })
+        {
+            foreach (var toolInput in request.SearchTools)
+            {
+                AzureAISearchQueryType? queryType = toolInput.QueryType is not null
+                    ? new AzureAISearchQueryType(toolInput.QueryType)
+                    : null;
+
+                var index = new AzureAISearchToolIndex
+                {
+                    ProjectConnectionId = toolInput.ConnectionName,
+                    IndexName = toolInput.IndexName,
+                    QueryType = queryType,
+                    TopK = toolInput.TopK,
+                    Filter = toolInput.Filter
+                };
+
+                var searchTool = ProjectsAgentTool.CreateAzureAISearchTool(
+                    new AzureAISearchToolOptions([index]));
+
+                // Implicit cast: ProjectsAgentTool → ResponseTool
+                definition.Tools.Add(searchTool);
+            }
+        }
+
         var options = new ProjectsAgentVersionCreationOptions(definition)
         {
             Description = request.Description
@@ -159,7 +187,17 @@ public class AgentsController : ControllerBase
             options: options);
         var agentVersion = result.Value;
 
-        _logger.LogInformation("Created prompt agent version successfully");
+        _logger.LogInformation("Created prompt agent version with {ToolCount} search tool(s) successfully",
+            request.SearchTools?.Count ?? 0);
+
+        var searchToolsResponse = request.SearchTools?.Select(t => new SearchToolResponse
+        {
+            ConnectionName = t.ConnectionName,
+            IndexName = t.IndexName,
+            QueryType = t.QueryType,
+            TopK = t.TopK,
+            Filter = t.Filter
+        }).ToList();
 
         return CreatedAtAction(
             nameof(GetAgentVersion),
@@ -168,7 +206,8 @@ public class AgentsController : ControllerBase
             {
                 Id = agentVersion.Id,
                 Name = agentVersion.Name,
-                Version = agentVersion.Version
+                Version = agentVersion.Version,
+                SearchTools = searchToolsResponse
             });
     }
 
