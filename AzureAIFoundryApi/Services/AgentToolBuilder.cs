@@ -100,6 +100,15 @@ public static class AgentToolBuilder
         if (string.IsNullOrWhiteSpace(config.Spec))
             throw new ArgumentException("OpenAPI tool requires 'spec'.");
 
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(config.Spec);
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            throw new ArgumentException("OpenAPI tool 'spec' must be a valid JSON string.");
+        }
+
         var auth = BuildOpenApiAuth(config);
         var funcDef = new OpenApiFunctionDefinition(
             name: config.Name,
