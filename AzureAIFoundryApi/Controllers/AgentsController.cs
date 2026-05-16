@@ -133,6 +133,17 @@ public class AgentsController : ControllerBase
     /// Creates a new prompt agent version in Azure AI Foundry.
     /// Prompt agents are declarative agents powered by a model deployment.
     /// </summary>
+    /// <remarks>
+    /// Tools can be attached declaratively via the <c>tools</c> array in the request body.
+    /// Each entry specifies a <c>type</c> and the properties required by that type:
+    /// <list type="bullet">
+    ///   <item><term>AzureAISearch</term><description>Requires <c>connectionName</c> and <c>indexName</c>. Optional: <c>queryType</c>, <c>topK</c>.</description></item>
+    ///   <item><term>BingGrounding</term><description>Requires <c>connectionName</c>. Optional: <c>market</c>, <c>count</c>, <c>freshness</c>.</description></item>
+    ///   <item><term>BingCustomSearch</term><description>Requires <c>connectionName</c> and <c>instanceName</c>. Optional: <c>market</c>, <c>count</c>, <c>freshness</c>.</description></item>
+    ///   <item><term>OpenAPI</term><description>Requires <c>name</c> and <c>spec</c> (OpenAPI 3.x JSON string). Optional: <c>authType</c> (Connection | Managed | Anonymous), <c>connectionName</c> or <c>audience</c> depending on auth type.</description></item>
+    /// </list>
+    /// Connection names can be discovered via <c>GET /api/connections</c>.
+    /// </remarks>
     [HttpPost("prompt")]
     public async Task<IActionResult> CreatePromptAgent([FromBody] CreateAgentRequest request)
     {
@@ -143,6 +154,21 @@ public class AgentsController : ControllerBase
         {
             Instructions = request.Instructions
         };
+
+        if (request.Tools is { Count: > 0 })
+        {
+            foreach (var toolConfig in request.Tools)
+            {
+                try
+                {
+                    definition.Tools.Add(AgentToolBuilder.Build(toolConfig));
+                }
+                catch (ArgumentException ex)
+                {
+                    return BadRequest(new { error = ex.Message });
+                }
+            }
+        }
 
         var options = new ProjectsAgentVersionCreationOptions(definition)
         {

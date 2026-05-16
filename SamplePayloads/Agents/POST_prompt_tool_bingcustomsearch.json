@@ -1,0 +1,23 @@
+{
+  "_description": "POST /api/agents/prompt — Creates a prompt agent with a Bing Custom Search tool scoped to a specific search instance.",
+  "_curl": "curl -X POST https://localhost:5001/api/agents/prompt -H 'Content-Type: application/json' -d @POST_prompt_tool_bingcustomsearch.json",
+  "_notes": [
+    "connectionName must match a connection listed by GET /api/connections?type=BingGrounding (or APIKey).",
+    "instanceName is the Bing Custom Search instance name from portal.azure.com.",
+    "market, count, and freshness are optional."
+  ],
+
+  "agentName": "custom-search-agent",
+  "model": "gpt-4o",
+  "instructions": "You are a support agent. Use the custom search to find answers in the company knowledge base.",
+  "description": "Agent scoped to a Bing Custom Search instance.",
+  "tools": [
+    {
+      "type": "BingCustomSearch",
+      "connectionName": "my-bing-connection",
+      "instanceName": "my-custom-search-instance",
+      "market": "en-US",
+      "count": 5
+    }
+  ]
+}

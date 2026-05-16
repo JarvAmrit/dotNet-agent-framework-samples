@@ -28,6 +28,14 @@ public class CreateAgentRequest
     /// Optional description for the agent.
     /// </summary>
     public string? Description { get; set; }
+
+    /// <summary>
+    /// Optional list of tools to attach to the agent.
+    /// Each entry is a <see cref="AgentToolConfig"/> that declares the tool type and its
+    /// configuration. Supported types: <c>AzureAISearch</c>, <c>BingGrounding</c>,
+    /// <c>BingCustomSearch</c>, <c>OpenAPI</c>.
+    /// </summary>
+    public List<AgentToolConfig>? Tools { get; set; }
 }
 
 /// <summary>

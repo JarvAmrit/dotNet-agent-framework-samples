@@ -1,0 +1,25 @@
+{
+  "_description": "POST /api/agents/prompt — Creates a prompt agent with an OpenAPI tool backed by any REST API registered as a Foundry connection.",
+  "_curl": "curl -X POST https://localhost:5001/api/agents/prompt -H 'Content-Type: application/json' -d @POST_prompt_tool_openapi.json",
+  "_notes": [
+    "name is a short identifier for the tool function (used by the model).",
+    "spec must be a valid OpenAPI 3.x document serialised as a JSON string. Only expose the operations you want the agent to call.",
+    "authType values: Connection (default, requires connectionName), Managed (requires audience), Anonymous.",
+    "connectionName must match a connection from GET /api/connections when authType is Connection.",
+    "The example spec below exposes two GET endpoints for listing and reading blobs in Azure Blob Storage."
+  ],
+
+  "agentName": "blob-reader-agent",
+  "model": "gpt-4o",
+  "instructions": "You can list and read blobs from Azure Storage. Use the BlobStorageApi tool to retrieve file contents when the user asks about stored documents.",
+  "description": "Agent that reads Azure Blob Storage via an OpenAPI tool.",
+  "tools": [
+    {
+      "type": "OpenAPI",
+      "name": "BlobStorageApi",
+      "authType": "Connection",
+      "connectionName": "my-blob-storage-connection",
+      "spec": "{\"openapi\":\"3.0.0\",\"info\":{\"title\":\"Blob Storage API\",\"version\":\"1.0.0\"},\"paths\":{\"/containers/{container}/blobs\":{\"get\":{\"operationId\":\"listBlobs\",\"summary\":\"List blobs in a container\",\"parameters\":[{\"name\":\"container\",\"in\":\"path\",\"required\":true,\"schema\":{\"type\":\"string\"}}],\"responses\":{\"200\":{\"description\":\"List of blob names\",\"content\":{\"application/json\":{\"schema\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}}}}},\"/containers/{container}/blobs/{blobName}\":{\"get\":{\"operationId\":\"readBlob\",\"summary\":\"Read the contents of a blob\",\"parameters\":[{\"name\":\"container\",\"in\":\"path\",\"required\":true,\"schema\":{\"type\":\"string\"}},{\"name\":\"blobName\",\"in\":\"path\",\"required\":true,\"schema\":{\"type\":\"string\"}}],\"responses\":{\"200\":{\"description\":\"Blob content as text\",\"content\":{\"text/plain\":{\"schema\":{\"type\":\"string\"}}}}}}}}}}"
+    }
+  ]
+}

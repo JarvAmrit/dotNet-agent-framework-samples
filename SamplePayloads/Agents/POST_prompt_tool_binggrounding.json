@@ -1,0 +1,23 @@
+{
+  "_description": "POST /api/agents/prompt — Creates a prompt agent with a Bing Grounding tool for live web search.",
+  "_curl": "curl -X POST https://localhost:5001/api/agents/prompt -H 'Content-Type: application/json' -d @POST_prompt_tool_binggrounding.json",
+  "_notes": [
+    "connectionName must match a connection listed by GET /api/connections?type=BingGrounding (or APIKey).",
+    "market, count, and freshness are all optional.",
+    "freshness accepted values: Day, Week, Month, or a date range like '2024-01-01..2024-06-30'."
+  ],
+
+  "agentName": "web-search-agent",
+  "model": "gpt-4o",
+  "instructions": "You are a news assistant. Search the web for the latest information and summarise it concisely.",
+  "description": "Agent that answers questions using live Bing web search.",
+  "tools": [
+    {
+      "type": "BingGrounding",
+      "connectionName": "my-bing-connection",
+      "market": "en-US",
+      "count": 5,
+      "freshness": "Week"
+    }
+  ]
+}

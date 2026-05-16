@@ -1,0 +1,23 @@
+{
+  "_description": "POST /api/agents/prompt — Creates a prompt agent with an Azure AI Search grounding tool.",
+  "_curl": "curl -X POST https://localhost:5001/api/agents/prompt -H 'Content-Type: application/json' -d @POST_prompt_tool_azureaisearch.json",
+  "_notes": [
+    "connectionName must match a connection listed by GET /api/connections?type=AzureAISearch.",
+    "queryType is optional. Supported values: Simple, Semantic, Full, VectorSimpleHybrid, VectorSemanticHybrid.",
+    "topK is optional. Defaults to the connection's configured value."
+  ],
+
+  "agentName": "search-grounded-agent",
+  "model": "gpt-4o",
+  "instructions": "You are a product expert. Always ground your answers in the official product documentation retrieved from Azure AI Search.",
+  "description": "Agent that answers questions using Azure AI Search over product docs.",
+  "tools": [
+    {
+      "type": "AzureAISearch",
+      "connectionName": "my-ai-search-connection",
+      "indexName": "product-docs",
+      "queryType": "Semantic",
+      "topK": 5
+    }
+  ]
+}
