@@ -1,0 +1,22 @@
+{
+  "_description": "POST /api/agents/hosted/from-source — Creates a hosted agent from source code (zip file) in Azure AI Foundry.",
+  "_curl": "curl -X POST 'https://localhost:5001/api/agents/hosted/from-source?projectEndpoint=https://your-project.services.ai.azure.com' -H 'Content-Type: application/json' -d @POST_hosted_from_source.json",
+  "_note": "The sourceCodeZipBase64 field should contain a base64-encoded zip file of your agent source code. Use the provided helper scripts to create this.",
+
+  "agentName": "customer-service-agent",
+  "sourceCodeZipBase64": "UEsDBBQAAAAIAA...<base64-encoded-zip-content>...==",
+  "runtime": "python_3_13",
+  "entryPoint": "main.py",
+  "cpu": "2",
+  "memory": "4Gi",
+  "protocolVersions": [
+    { "protocol": "A2A", "version": "0.2.1" }
+  ],
+  "environmentVariables": {
+    "APP_ENV": "production",
+    "LOG_LEVEL": "info",
+    "OPENAI_API_VERSION": "2024-02-15-preview"
+  },
+  "buildCommand": "pip install -r requirements.txt",
+  "description": "Customer service agent deployed from Python source code"
+}

@@ -125,6 +125,68 @@ public class ProtocolVersionInput
 }
 
 /// <summary>
+/// Request model for creating a hosted agent from source code.
+/// Deploys agents directly from zipped source code instead of container images.
+/// </summary>
+public class CreateHostedAgentFromSourceRequest
+{
+    /// <summary>
+    /// The name for the agent.
+    /// </summary>
+    [Required]
+    public required string AgentName { get; set; }
+
+    /// <summary>
+    /// Base64-encoded zip file containing the agent source code.
+    /// </summary>
+    [Required]
+    public required string SourceCodeZipBase64 { get; set; }
+
+    /// <summary>
+    /// Runtime environment (e.g., "python_3_13", "python_3_14", "dotnet_10").
+    /// </summary>
+    [Required]
+    public required string Runtime { get; set; }
+
+    /// <summary>
+    /// Entry point command or file for the agent (e.g., "main.py" for Python, "MyAgent.dll" for .NET).
+    /// </summary>
+    [Required]
+    public required string EntryPoint { get; set; }
+
+    /// <summary>
+    /// CPU allocation (e.g., "1", "2"). Defaults to "1".
+    /// </summary>
+    public string? Cpu { get; set; }
+
+    /// <summary>
+    /// Memory allocation (e.g., "2Gi", "4Gi"). Defaults to "2Gi".
+    /// </summary>
+    public string? Memory { get; set; }
+
+    /// <summary>
+    /// Protocol versions supported by the hosted agent.
+    /// </summary>
+    [Required]
+    public required List<ProtocolVersionInput> ProtocolVersions { get; set; }
+
+    /// <summary>
+    /// Optional environment variables for the hosted agent.
+    /// </summary>
+    public Dictionary<string, string>? EnvironmentVariables { get; set; }
+
+    /// <summary>
+    /// Optional description for the agent.
+    /// </summary>
+    public string? Description { get; set; }
+
+    /// <summary>
+    /// Optional build command to run during deployment (e.g., "pip install -r requirements.txt" or "dotnet restore").
+    /// </summary>
+    public string? BuildCommand { get; set; }
+}
+
+/// <summary>
 /// Response model representing an agent version from Azure AI Foundry.
 /// </summary>
 public class AgentVersionResponse

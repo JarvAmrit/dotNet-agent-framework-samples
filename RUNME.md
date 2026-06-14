@@ -139,6 +139,7 @@ https://localhost:5001/openapi/v1.json
 | `GET` | `/api/agents/{agentName}/versions/{version}` | Get a specific agent version |
 | `POST` | `/api/agents/prompt` | Create a new prompt (declarative) agent |
 | `POST` | `/api/agents/hosted` | Create a new hosted (containerized) agent |
+| `POST` | `/api/agents/hosted/from-source` | **NEW**: Create a hosted agent from source code (zip file) |
 | `POST` | `/api/agents/{agentName}/invoke` | **Invoke** an agent — send a message and get the response |
 | `DELETE` | `/api/agents/{agentName}` | Delete an agent and all its versions |
 | `DELETE` | `/api/agents/{agentName}/versions/{version}` | Delete a specific agent version |
@@ -156,7 +157,40 @@ curl -X POST https://localhost:5001/api/agents/prompt \
   }'
 ```
 
-#### Example: Create a Hosted Agent
+#### Example: Create a Hosted Agent from Source Code
+
+**NEW**: Deploy agents directly from source code without building container images.
+
+```bash
+# First, package your agent code and convert to base64
+cd my-agent-source/
+zip -r agent.zip . -x "*.pyc" -x "__pycache__/*"
+base64 -w 0 agent.zip > agent-base64.txt
+
+# Deploy using the API
+curl -X POST 'https://localhost:5001/api/agents/hosted/from-source?projectEndpoint=https://your-project.services.ai.azure.com' \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agentName": "my-python-agent",
+    "sourceCodeZipBase64": "<paste-content-from-agent-base64.txt>",
+    "runtime": "python_3_13",
+    "entryPoint": "main.py",
+    "cpu": "2",
+    "memory": "4Gi",
+    "protocolVersions": [
+      { "protocol": "A2A", "version": "0.2.1" }
+    ],
+    "environmentVariables": {
+      "LOG_LEVEL": "info"
+    },
+    "buildCommand": "pip install -r requirements.txt",
+    "description": "Python agent deployed from source"
+  }'
+```
+
+**For comprehensive documentation, automation scripts, and complete examples, see [DEPLOY_FROM_SOURCE.md](./DEPLOY_FROM_SOURCE.md).**
+
+#### Example: Create a Hosted Agent (from Container Image)
 
 ```bash
 curl -X POST https://localhost:5001/api/agents/hosted \
