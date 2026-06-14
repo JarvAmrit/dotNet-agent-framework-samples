@@ -159,7 +159,7 @@ def deploy_agent(
     params = {"projectEndpoint": project_endpoint}
     
     try:
-        response = requests.post(url, json=payload, params=params, verify=False)
+        response = requests.post(url, json=payload, params=params)
         
         if response.status_code >= 200 and response.status_code < 300:
             print_color("✓ Deployment successful!", Colors.GREEN)
@@ -184,7 +184,7 @@ def deploy_agent(
             print("Response:")
             try:
                 print(json.dumps(response.json(), indent=2))
-            except:
+            except (json.JSONDecodeError, ValueError):
                 print(response.text)
             print()
             sys.exit(1)

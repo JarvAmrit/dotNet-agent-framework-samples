@@ -95,7 +95,7 @@ ZIP_FILE="$TMP_DIR/$AGENT_NAME.zip"
 cd "$SOURCE_DIR"
 if [ -f "requirements.txt" ]; then
     echo "  ✓ Found requirements.txt"
-elif [ -f "*.csproj" ]; then
+elif compgen -G "*.csproj" > /dev/null 2>&1; then
     echo "  ✓ Found .NET project file"
 fi
 

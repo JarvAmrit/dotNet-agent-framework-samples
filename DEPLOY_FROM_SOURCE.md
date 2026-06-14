@@ -2,6 +2,19 @@
 
 This guide explains how to deploy hosted agents in Azure AI Foundry directly from source code, without needing to build and push container images manually. This is a newer feature that simplifies the deployment process significantly.
 
+> **⚠️ IMPLEMENTATION STATUS:**  
+> The endpoint and API contract for source code deployment are **fully implemented** in this repository.  
+> However, the Azure.AI.Projects SDK (v2.0.0) does not yet provide native support for uploading source code as part of agent deployment.  
+> 
+> **Current behavior:** The endpoint validates requests, decodes source code, and creates agent metadata with runtime configuration.  
+> **Full deployment** requires either:
+> - Awaiting SDK updates with native source code upload support (expected in future releases)
+> - Custom implementation using Azure Storage + protocol-layer integration
+> - Direct REST API calls to Foundry's source deployment endpoints
+>
+> Monitor [Azure.AI.Projects SDK releases](https://www.nuget.org/packages/Azure.AI.Projects/) for source code deployment capabilities.  
+> This implementation serves as a working template and demonstrates the intended API design.
+
 ## Table of Contents
 
 - [Overview](#overview)

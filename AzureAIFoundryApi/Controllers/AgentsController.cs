@@ -265,16 +265,26 @@ public class AgentsController : ControllerBase
                 versions.Add(new ProtocolVersionRecord(protocol, pv.Version));
             }
 
-            // Create hosted agent definition with source code
-            // Note: Using the protocol layer to upload source code directly
+            // IMPLEMENTATION NOTE:
+            // The Azure.AI.Projects SDK (v2.0.0) does not yet provide a direct API
+            // for uploading source code as part of HostedAgentDefinition.
+            // This endpoint demonstrates the API contract and validates the request.
+            // 
+            // Full implementation would require one of:
+            // 1. SDK update with source code upload support (expected in future versions)
+            // 2. Using the protocol layer to upload source to Azure Storage + reference in definition
+            // 3. Direct REST API calls to the Foundry service's source deployment endpoint
+            //
+            // Current behavior: Creates metadata-only agent with runtime configuration
+            // in environment variables. Actual source deployment would fail until SDK support.
+            //
+            // For production use, monitor Azure.AI.Projects SDK releases for source code
+            // deployment capabilities, or implement custom protocol-layer integration.
+
             var definition = new HostedAgentDefinition(
                 versions: versions,
                 cpu: request.Cpu ?? "1",
-                memory: request.Memory ?? "2Gi")
-            {
-                // For source code deployment, we need to set the source code property
-                // This is a newer feature in the SDK that allows deploying from source
-            };
+                memory: request.Memory ?? "2Gi");
 
             // Add environment variables if provided
             if (request.EnvironmentVariables is not null)
@@ -285,9 +295,11 @@ public class AgentsController : ControllerBase
                 }
             }
 
-            // Add runtime configuration
+            // Store source deployment metadata in environment variables
+            // This allows tracking deployment method and configuration
             definition.EnvironmentVariables["AGENT_RUNTIME"] = request.Runtime;
             definition.EnvironmentVariables["AGENT_ENTRYPOINT"] = request.EntryPoint;
+            definition.EnvironmentVariables["SOURCE_CODE_SIZE"] = sourceCodeData.ToArray().Length.ToString();
             
             if (!string.IsNullOrEmpty(request.BuildCommand))
             {
@@ -299,12 +311,13 @@ public class AgentsController : ControllerBase
                 Description = request.Description ?? $"Hosted agent deployed from source code (Runtime: {request.Runtime})"
             };
 
-            // Note: The actual source code upload may require using the protocol layer
-            // with multipart/form-data or a dedicated upload endpoint.
-            // For now, we're storing metadata about the source deployment.
-            // In practice, you would need to upload the source code to a storage location
-            // and reference it in the agent definition, or use a dedicated SDK method
-            // when it becomes available.
+            // Log that source code was received but full deployment requires SDK enhancement
+            _logger.LogWarning(
+                "Received source code deployment request for agent '{AgentName}' ({Size} bytes). " +
+                "Full source code deployment requires SDK support or custom protocol implementation. " +
+                "Creating agent metadata with runtime configuration.",
+                Sanitize(request.AgentName), sourceCodeData.ToArray().Length);
+
 
             var result = await agentAdmin.CreateAgentVersionAsync(
                 agentName: request.AgentName,
